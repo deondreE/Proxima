@@ -7,19 +7,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 find_package(X11 REQUIRED)
 
+add_subdirectory(external/yaml-cpp)
+
 add_library(proxima_ui
   src/View.cpp
   src/Text.cpp
   src/Button.cpp
   src/StackLayout.cpp
+  src/ConfigManager.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(proxima_ui PUBLIC X11::X11)
+target_link_libraries(proxima_ui PUBLIC X11::X11 yaml-cpp)
 
 add_executable(example_app examples/main.cpp)
 
+target_link_libraries(example_app PUBLIC yaml-cpp)
 target_link_libraries(example_app PRIVATE proxima_ui)

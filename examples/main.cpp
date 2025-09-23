@@ -1,17 +1,26 @@
 #include <X11/Xlib.h>
 #include <iostream>
 #include "UI/Button.hpp"
+#include "UI/ConfigManager.hpp"
 #include "UI/StackLayout.hpp"
 #include "UI/Text.hpp"
 #include "UI/View.hpp"
 
 using namespace UI;
 
+ConfigManager configManager;
+
 void on_btn_clicked() {
   std::cout << "Button callback free!";
 }
 
 int main() {
+  if (!configManager.load("examples/config/app_config.yaml")) {
+    return 1;
+  }
+
+  const AppConfig& appConfig = configManager.getAppConfig();
+
   Display* dpy = XOpenDisplay(NULL);
   if (!dpy) {
     std::cerr << "Failed to open display\n";
@@ -20,8 +29,10 @@ int main() {
 
   int screen = DefaultScreen(dpy);
   Window win =
-      XCreateSimpleWindow(dpy, RootWindow(dpy, screen), 100, 100, 400, 300, 1,
+      XCreateSimpleWindow(dpy, RootWindow(dpy, screen), 100, 100,
+                          appConfig.initial_width, appConfig.initial_height, 1,
                           BlackPixel(dpy, screen), WhitePixel(dpy, screen));
+  XStoreName(dpy, win, appConfig.window_title.c_str());
   XSelectInput(
       dpy, win,
       ExposureMask | KeyPressMask | ButtonPressMask | StructureNotifyMask);
@@ -45,7 +56,7 @@ int main() {
   layout.add(btn);
 
   View root;
-  root.size(400, 300).add(layout);
+  root.size(appConfig.initial_width, appConfig.initial_height).add(layout);
 
   bool running = true;
   while (running) {
