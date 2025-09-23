@@ -15,6 +15,7 @@ add_library(proxima_ui
   src/Button.cpp
   src/StackLayout.cpp
   src/ConfigManager.cpp
+  src/InspectorPanel.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC

@@ -1,4 +1,5 @@
 # Application settings
-window_title: "Proxima MVP"
-initial_width: 640
-initial_height: 480
+application:
+  window_title: "Proxima MVP"
+  initial_width: 640
+  initial_height: 480
