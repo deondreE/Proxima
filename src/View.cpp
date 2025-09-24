@@ -24,10 +24,10 @@ View& View::pos(int nx, int ny) {
   return *this;
 }
 
-void View::draw(Display* dpy, Window win, GC gc) {
+void View::draw(SDL_Renderer* renderer) {
   for (auto& c : children) {
     if (c)
-      c->draw(dpy, win, gc);
+      c->draw(renderer);
   }
 }
 
@@ -40,7 +40,7 @@ void View::layout(int offsetX, int offsetY) {
   }
 }
 
-void View::handleEvent(XEvent& event) {
+void View::handleEvent(const SDL_Event& event) {
   for (auto& child : children) {
     child->handleEvent(event);
   }

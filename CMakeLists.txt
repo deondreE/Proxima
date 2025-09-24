@@ -4,6 +4,16 @@ project(ProximaUI LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(SDL3 CONFIG REQUIRED)
+if (NOT TARGET SDL3::SDL3)
+  message(FATAL_ERROR "SDL3 target not found. Ensure SDL3 is installed or check find_package paths.")
+endif()
+
+find_package(SDL3_ttf CONFIG REQUIRED)
+if (NOT TARGET SDL3_ttf::SDL3_ttf)
+  message(FATAL_ERROR "SDL3_ttf target not found. Ensure SDL3_ttf is installed or check find_package paths.")
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 find_package(X11 REQUIRED)
 
@@ -11,20 +21,19 @@ add_subdirectory(external/yaml-cpp)
 
 add_library(proxima_ui
   src/View.cpp
-  src/Text.cpp
   src/Button.cpp
   src/StackLayout.cpp
   src/ConfigManager.cpp
-  src/InspectorPanel.cpp
+  src/Text.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(proxima_ui PUBLIC X11::X11 yaml-cpp)
+target_link_libraries(proxima_ui PUBLIC X11::X11 yaml-cpp SDL3::SDL3 SDL3_ttf::SDL3_ttf)
 
 add_executable(example_app examples/main.cpp)
 
 target_link_libraries(example_app PUBLIC yaml-cpp)
-target_link_libraries(example_app PRIVATE proxima_ui)
+target_link_libraries(example_app PRIVATE proxima_ui SDL3::SDL3 SDL3_ttf::SDL3_ttf)

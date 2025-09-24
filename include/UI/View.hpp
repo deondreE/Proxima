@@ -1,6 +1,5 @@
 #pragma once
-#include <X11/Xlib.h>
-#include <initializer_list>
+#include <SDL3/SDL.h>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -26,10 +25,10 @@ class View {
     return child;
   }
 
-  virtual void draw(Display* dpy, Window win, GC gc);
+  virtual void draw(SDL_Renderer* renderer);
 
   virtual void layout(int offsetX, int offsetY);
-  virtual void handleEvent(XEvent& event);
+  virtual void handleEvent(const SDL_Event& event);
 };
 
 }  // Namespace UI

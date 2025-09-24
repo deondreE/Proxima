@@ -17,9 +17,9 @@ class StackLayout : public View {
   StackLayout& spacing(int s);
   StackLayout& children_list(std::initializer_list<View*> vs);
 
-  void draw(Display* dpy, Window win, GC gc) override;
+  void draw(SDL_Renderer* renderer) override;
   void layout(int ox, int oy) override;
-  void handleEvent(XEvent& event) override;
+  void handleEvent(const SDL_Event& event) override;
 };
 
 }  // Namespace UI

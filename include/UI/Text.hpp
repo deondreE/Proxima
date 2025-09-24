@@ -1,18 +1,40 @@
 #pragma once
+#include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3/SDL.h>
 #include <string>
 #include "View.hpp"
 
 namespace UI {
 
-class Text : public View {
-  std::string content;
+class Text :  public View
+{
+private:
+    std::string text_content;
+    TTF_Font* font;
+    SDL_Color text_color;
 
- public:
-  explicit Text(const std::string& str);
+    SDL_Texture* text_texture;
+    bool texture_needs_update; 
 
-  Text& text(const std::string& str);
+    void updateTexture(SDL_Renderer* renderer);
+public:
+    Text(const std::string& text = "", TTF_Font* initial_font = nullptr, SDL_Color color = {0, 0, 0, 255});
 
-  void draw(Display* dpy, Window win, GC gc) override;
+    ~Text() override;
+
+    Text& size(int w, int h) { View::size(w, h); return *this; }
+    Text& pos(int nx, int ny) { View::pos(nx, ny); return *this; }
+    Text& content(const std::string& str);
+    Text& setFont(TTF_Font* newFont);
+    Text& setColor(SDL_Color newColor);
+
+    virtual void draw(SDL_Renderer* renderer) override;
+    virtual void handleEvent(const SDL_Event& event);
+
+    Text(const Text&) = delete;
+    Text& operator=(const Text&) = delete;
+    Text(Text&&) = delete;  
+    Text& operator=(Text&&) = delete;
 };
 
-}  // Namespace UI
+} // Namespace UI

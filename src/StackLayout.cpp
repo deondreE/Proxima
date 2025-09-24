@@ -17,32 +17,54 @@ StackLayout& StackLayout::spacing(int s) {
 }
 
 void StackLayout::layout(int offsetX, int offsetY) {
-  int layoutAbsX = offsetX + x;
-  int layoutAbsY = offsetY + y;
+  this->x = offsetX;
+  this->y = offsetY;
+  int currentChildPosX = this->x;
+  int currentChildPosY = this->y;
 
-  int currentChildPosX = layoutAbsX;
-  int currentChildPosY = layoutAbsY;
+  int totalWidth;
+  int totalHeight;
 
   for (auto& c : children) {
     if (!c)
       continue;
-    c->x = currentChildPosX;
-    c->y = currentChildPosY;
     c->layout(currentChildPosX, currentChildPosY);
-    offsetX +=
-        (orient == Vertical ? c->height + spacing_val : c->width + spacing_val);
+    if (orient == Vertical) {
+      currentChildPosY += c->height + spacing_val;
+      totalWidth = std::max(totalWidth, c->width);
+      totalHeight += c->height + spacing_val;
+    } else {
+      currentChildPosX += c->width + spacing_val;
+      totalWidth += c->width + spacing_val;
+      totalHeight = std::max(totalHeight, c->height);
+    }
+
+    if (!children.empty()) {
+      if (orient == Vertical) {
+        this->width = totalWidth;
+        this->height = totalHeight - spacing_val;
+      } else {
+        this->width = totalWidth - spacing_val;
+        this->height = totalHeight;
+      }
+    } else {
+      this->width = 0;
+      this->height = 0; 
+    }
   }
 }
 
-void StackLayout::draw(Display* dpy, Window win, GC gc) {
+void StackLayout::draw(SDL_Renderer* renderer) {
   for (auto& child : children) {
-    child->draw(dpy, win, gc);
+    child->draw(renderer);
   }
 }
 
-void StackLayout::handleEvent(XEvent& event) {
+void StackLayout::handleEvent(const SDL_Event& event) {
   for (auto& child : children) {
-    child->handleEvent(event);
+    if (child) {
+      child->handleEvent(event);
+    } 
   }
 }
 
