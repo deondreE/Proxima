@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 
     Text hello("Hello Proxima UI");
     hello.size(300, 30);
-    hello.pos(0, -100);
+    hello.pos(0, 100);
     hello.setFont(g_ui_font);
     hello.setColor({0,0,0,255});
 
@@ -85,7 +85,6 @@ int main(int argc, char* argv[]) {
 
     StackLayout layout;
     layout.orientation(Vertical).spacing(20);
-    layout.add(hello);
     layout.pos(100, 100);
     layout.add(btn);
     layout.add(hello);
@@ -108,6 +107,8 @@ int main(int argc, char* argv[]) {
                     running = false;
                 }
             }
+
+            root.handleEvent(event);
         }
 
         // Clear with blue background
@@ -121,20 +122,6 @@ int main(int argc, char* argv[]) {
 
         root.layout(0, 0);
         root.draw(renderer);
-
-        // if (g_ui_font) {
-        //     std::string s = "Test text";
-        //     SDL_Surface* textSurface = TTF_RenderText_Solid(g_ui_font, s.c_str(), s.length(), {0, 0, 0, 255});
-        //     if (textSurface) {
-        //         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-        //         if (textTexture) {
-        //             SDL_FRect textRect = {60, 60, (float)textSurface->w, (float)textSurface->h};
-        //             SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
-        //             SDL_DestroyTexture(textTexture);
-        //         }
-        //         SDL_DestroySurface(textSurface);
-        //     }
-        // }
 
         SDL_RenderPresent(renderer); // Update the screen
     }

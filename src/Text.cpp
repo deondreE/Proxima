@@ -20,19 +20,11 @@ Text::~Text()  {
 }
 
 void Text::updateTexture(SDL_Renderer* renderer) {
-    if (!renderer || !font || text_content.empty()) {
-        if (text_texture) {
-            SDL_DestroyTexture(text_texture);
-            text_texture = nullptr;
-        }
-        width = 0; height = 0;
-        texture_needs_update = false;
+    if (!texture_needs_update || !font || text_content.empty()) {
         return;
     }
 
-    if (!texture_needs_update) return;
-
-    if (text_texture ) {
+    if (text_texture) {
         SDL_DestroyTexture(text_texture);
         text_texture = nullptr;
     }
@@ -40,13 +32,13 @@ void Text::updateTexture(SDL_Renderer* renderer) {
     SDL_Surface* text_surface = TTF_RenderText_Blended(font, text_content.c_str(), text_content.length(), text_color);
     if (!text_surface) {
         std::cerr << "Text::updateTexture:: Failed to render text surface: " << std::endl;
-        width = 0; height = 0;
-        texture_needs_update = false;
         return;
     }
 
-    width = text_surface->w;
-    height = text_surface->h;
+    text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+    if (!text_texture) {
+        std::cerr << "Failed to create text texture: " << SDL_GetError() << std::endl;
+    }
 
     SDL_DestroySurface(text_surface);
     texture_needs_update = false;
@@ -81,7 +73,9 @@ void Text::draw(SDL_Renderer* renderer) {
     updateTexture(renderer);
 
     if (text_texture) {
-        SDL_FRect dest_rect = {(float)x, (float)y, (float)width, (float)height};
+        float tex_w, tex_h;
+        SDL_GetTextureSize(text_texture, &tex_w, &tex_h);
+        SDL_FRect dest_rect = {(float)x, (float)y, tex_w, tex_h};
         SDL_RenderTexture(renderer, text_texture, NULL, &dest_rect);
     }
 

@@ -7,7 +7,8 @@ Button::Button(TTF_Font* defaultFont, SDL_Color defaultColor)
     : font(defaultFont),
       text_color(defaultColor),
       label_texture(nullptr),
-      texture_needs_update(true) {}
+      texture_needs_update(true),
+      is_pressed(false) {}
 
 Button::~Button() {
   if (label_texture) {
@@ -95,7 +96,12 @@ void Button::draw(SDL_Renderer* renderer) {
   updateLabelTexture(renderer); 
 
   // bg
-  SDL_SetRenderDrawColor(renderer, 0xDD, 0xDD, 0xDD, 0xFF);
+  if (is_pressed) {
+    SDL_SetRenderDrawColor(renderer, 0xAA, 0xAA, 0xAA, 0xFF);
+  } else {
+    SDL_SetRenderDrawColor(renderer, 0xDD, 0xDD, 0xDD, 0xFF);
+  }
+  
   SDL_FRect bg_rect = {(float)x, (float)y, (float)width, (float)height};
   SDL_RenderFillRect(renderer, &bg_rect);
 
@@ -120,8 +126,14 @@ void Button::handleEvent(const SDL_Event& event) {
     if (event.button.x >= x && event.button.x < (x + width) &&
         event.button.y >= y && event.button.y < (y + height)) {
       if (event.button.button == SDL_BUTTON_LEFT) {
+        is_pressed = true;
         click();
       }
+    }
+  }
+  else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+    if (event.button.button == SDL_BUTTON_LEFT) {
+      is_pressed = false;
     }
   }
 }

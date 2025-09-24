@@ -13,6 +13,7 @@ class Button : public View {
   SDL_Color text_color;
   SDL_Texture* label_texture;
   bool texture_needs_update; 
+  bool is_pressed;
 
   void updateLabelTexture(SDL_Renderer* renderer);
 
