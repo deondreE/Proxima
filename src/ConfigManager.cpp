@@ -22,6 +22,9 @@ bool ConfigManager::load(const std::string& config_path) {
       if (app_node["initial_height"]) {
         app_config.initial_height = app_node["initial_height"].as<int>();
       }
+      if (app_node["initial_font_path"]) {
+        app_config.deafult_font_path = app_node["initial_font_path"].as<std::string>();
+      }
     } else {
       std::cerr << "Warning: 'application' node not found in " << config_path
                 << std::endl;

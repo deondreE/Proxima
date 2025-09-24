@@ -3,6 +3,7 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <string>
 #include "View.hpp"
+#include "Core/ProximaEvent.hpp"  
 
 namespace UI {
 
@@ -43,7 +44,7 @@ class Text : public View {
   Text& setColor(SDL_Color newColor);
 
   virtual void draw(SDL_Renderer* renderer) override;
-  virtual void handleEvent(const SDL_Event& event) override;
+  virtual bool handleProximaEvent(const ProximaEvent& event) override;
 
   Text(const Text&) = delete;
   Text& operator=(const Text&) = delete;

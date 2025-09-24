@@ -54,4 +54,35 @@ void View::handleEvent(const SDL_Event& event) {
   }
 }
 
+bool View::handleProximaEvent(const ProximaEvent& event) {
+  for (View* child : children) {
+    if (child->handleProximaEvent(event)) {
+      return true;
+    }
+  }
+
+  switch (event.type) {
+    case KEY_PRESS:
+    case KEY_RELEASE:
+    case TEXT_INPUT:
+      break;
+    case MOUSE_PRESS:
+         if (event.x >= x && event.x < (x + width) &&
+                event.y >= y && event.y < (y + height)) {
+                  return true;
+                }
+          break;
+    case MOUSE_RELEASE:
+      break;
+    case MOUSE_MOTION:
+          break;
+    case WINDOW_RESIZE:
+          break;
+    case QUIT:
+    case NONE:
+        break;
+  }
+  return false; 
+}
+
 }  // Namespace UI

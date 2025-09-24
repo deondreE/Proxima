@@ -1,40 +1,33 @@
 #pragma once
 #include "ProximaEvent.hpp"
-#include <vector>
 #include <queue>
 #include <functional>
-#include <map>
-
-namespace UI {
-    class View;
-}
+#include <array>
+#include <SDL3/SDL.h>
 
 class EventDispatcher {
 public:
-    using EventHandler = std::function<bool(ProximaEvent&)>;
-
-private:
-    std::queue<ProximaEvent> eventQueue;
-    EventHandler globalHandler;
-    std::map<KeySym, ProximaEventKeyCode> keySymToCode;
-    std::map<KeySym, std::string> keySymToString;
-
-public:
-    EventDispatcher();
-    ~EventDispatcher() = default;
-
-    void setGlobalHandler(EventHandler handler);
-    EventHandler getGlobalEventHandler(); 
-    void pollAndTranslateEvents(Display* dpy);
-
-    void dispatchEvents();
-
-private:
-    // Helper to translate X11 KeySyms
-    void initializeKeySymMap();
-    ProximaEventKeyCode getKeySymCode(KeySym keysym);
-    std::string getKeySymString(KeySym keysym);
+    using Handler = std::function<bool(const ProximaEvent&)>;
     
-    // Helper to translate raw XEvent to ProximaEvent
-    ProximaEvent translateEvent(const XEvent& xevent);
+    EventDispatcher(SDL_Window* win);
+    ~EventDispatcher();
+
+    void onQuit       (Handler h);
+    void onKeyPress   (Handler h);
+    void onKeyRelease (Handler h);
+    void onMousePress (Handler h);
+    void onMouseRelease(Handler h);
+    void onMouseMotion(Handler h);
+    void onWindowResize(Handler h);
+    void onTextInput(Handler h);
+
+    void  pollAndTranslate();
+    void  dispatch();
+private:
+  std::queue<ProximaEvent> _q;
+  std::array<Handler, TEXT_INPUT + 1> _handlers;
+
+  SDL_Window* w; 
+
+  ProximaEvent translate(const SDL_Event& sdl_event);
 };

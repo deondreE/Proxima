@@ -13,16 +13,16 @@ Before worrying about other languages, ensure your C++ core is stable and well-t
 
 
 - Fundamental Widgets:
-	- Button: Reliable clicks, hover states, disabled states.
 
 	- Text Input: Basic keyboard input, cursor, selection, scrolling.
-
-	- Labels/Static Text: As you have.
 
 	- Layout Managers: StackLayout is a good start. Consider FlowLayout (like CSS flexbox) and GridLayout for more complex arrangements.
 
 
 - Event System:
+  - React like event control, allows the user to control when and what the event can do.
+  - Translate SDL events rather then RAW X11, package SDL with this.
+
 	- Input Handling: Keyboard (keypress, keyup), mouse (click, hover, mouse down/up, scroll).
 
 	- Event Propagation: How events travel through the UI hierarchy (e.g., from child to parent, or deepest child first).

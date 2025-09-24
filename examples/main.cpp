@@ -10,6 +10,8 @@
 #include "UI/View.hpp"
 #include "UI/TextInput.hpp"
 
+#include "Core/EventDispatcher.hpp" 
+
 using namespace UI;
 
 void on_btn_clicked() {
@@ -103,28 +105,56 @@ int main(int argc, char* argv[]) {
   root.pos(0, 0);
   root.add(layout);
 
+  // Event Dispatcher
+  EventDispatcher eventDispatcher(window);
   bool running = true;
-  SDL_Event event;
+
+  eventDispatcher.onQuit([&](const ProximaEvent& ev) {
+    running = false;
+    return true; // Consume the event
+  });
+
+  eventDispatcher.onKeyPress([&](const ProximaEvent& ev) {
+    if (ev.keyCode == SDLK_ESCAPE) {
+      running = false;
+      return true;
+    }
+
+    root.handleProximaEvent(ev);
+    return false; // Don't consume here, let others potentially handle it
+  });
+
+  eventDispatcher.onTextInput([&](const ProximaEvent& ev) {
+    // Forward text input to the root UI view
+    root.handleProximaEvent(ev);
+    return false; // Not consumed at this top level, allow UI components to handle
+  });
+
+   eventDispatcher.onMousePress([&](const ProximaEvent& ev) {
+    root.handleProximaEvent(ev);
+    return false;
+  });
+
+  eventDispatcher.onMouseRelease([&](const ProximaEvent& ev) {
+    root.handleProximaEvent(ev);
+    return false;
+  });
+
+  eventDispatcher.onMouseMotion([&](const ProximaEvent& ev) {
+    root.handleProximaEvent(ev);
+    return false;
+  });
+
+  eventDispatcher.onWindowResize([&](const ProximaEvent& ev) {
+      // You'll likely need to pass this to your root view
+      root.size(ev.width, ev.height); // Or similar
+      root.handleProximaEvent(ev);
+      return false;
+  });
 
   while (running) {
-    Uint32 currentTime = SDL_GetTicks();
-    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_EVENT_QUIT) {
-        running = false;
-      }
-      if (event.type == SDL_EVENT_KEY_DOWN) {
-        if (event.key.key == SDLK_ESCAPE) {  // ESC key
-          running = false;
-        }
-      }
-
-      root.handleEvent(event);
-    }
-
-    if (inputField.hasFocus()) {
-      inputField.handleEvent(event);
-    }
-
+    eventDispatcher.pollAndTranslate();
+    eventDispatcher.dispatch();
     // Clear with blue background
     SDL_SetRenderDrawColor(renderer, 100, 149, 237, 255);
     SDL_RenderClear(renderer);

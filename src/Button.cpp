@@ -148,20 +148,45 @@ void Button::draw(SDL_Renderer* renderer) {
   View::draw(renderer);
 }
 
-void Button::handleEvent(const SDL_Event& event) {
-  if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-    if (event.button.x >= x && event.button.x < (x + width) &&
-        event.button.y >= y && event.button.y < (y + height)) {
-      if (event.button.button == SDL_BUTTON_LEFT) {
-        is_pressed = true;
-        click();
-      }
-    }
-  } else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-    if (event.button.button == SDL_BUTTON_LEFT) {
-      is_pressed = false;
-    }
+bool Button::handleProximaEvent(const ProximaEvent& event) {
+  int absX = x;
+  int absY = y;
+
+  int mouseX = event.x;
+  int mouseY = event.y;
+
+  bool consumed = false;
+  switch (event.type) {
+    case MOUSE_PRESS:
+       if (mouseX >= absX && mouseX < (absX + width) &&
+                mouseY >= absY && mouseY < (absY + height)) {
+                is_pressed = true; // Mark button as pressed
+                consumed = true; // Consume the event
+            }
+        break;
+    case MOUSE_RELEASE:
+            if (is_pressed) {
+              is_pressed = false;
+
+              // Check if mouse is still within bounds on release
+              if (mouseX >= absX && mouseX < (absX + width) &&
+                  mouseY >= absY && mouseY < (absY + height)) {
+                  // Trigger the click handler
+                  if (onClickHandler) {
+                      onClickHandler();
+                  }
+                  consumed = true; // Consume the event
+              }
+            }
+            break;
+    case WINDOW_RESIZE:
+            texture_needs_update = true;
+            break;
+    default: 
+        break;
   }
+
+  return View::handleProximaEvent(event);
 }
 
 }  // Namespace UI

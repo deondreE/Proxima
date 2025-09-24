@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "../Core/ProximaEvent.hpp"
+
 namespace UI {
 
 class View {
@@ -35,6 +37,7 @@ class View {
   virtual void draw(SDL_Renderer* renderer);
   virtual void layout(int offsetX, int offsetY);
   virtual void handleEvent(const SDL_Event& event);
+  virtual bool handleProximaEvent(const ProximaEvent& event);
 
   View(const View&) = delete;
   View& operator=(const View&) = delete;

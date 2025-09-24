@@ -3,6 +3,7 @@
 #include <functional>
 #include <string>
 #include "View.hpp"
+#include "Core/ProximaEvent.hpp"
 
 namespace UI {
 
@@ -41,7 +42,7 @@ class Button : public View {
 
   void click();
   void draw(SDL_Renderer* renderer) override;
-  void handleEvent(const SDL_Event& event) override;
+  bool handleProximaEvent(const ProximaEvent& event) override;
 
   Button(const Button&) = delete;
   Button& operator=(const Button&) = delete;

@@ -134,8 +134,8 @@ void Text::draw(SDL_Renderer* renderer) {
   View::draw(renderer);
 }
 
-void Text::handleEvent(const SDL_Event& event) {
-  View::handleEvent(event);
+bool Text::handleProximaEvent(const ProximaEvent& event) {
+  return View::handleProximaEvent(event);
 }
 
 }  // Namespace UI
