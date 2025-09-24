@@ -17,17 +17,6 @@ SEARCH_DIR="."
 
 echo "Running clang-format for staged files..."
 
-# Find all relevant files that are staged for commit
-# Use git ls-files --cached --modified --others --exclude-standard
-# --cached: include files in the index
-# --modified: include modified files
-# --others: include untracked files
-# --exclude-standard: respect .gitignore etc.
-# However, for a pre-commit hook, we usually want to format *all* changed files,
-# not just those in the index.
-# A common approach is to find all relevant files in the repo and format them,
-# then let git add the changes if any.
-
 # Find all files matching patterns recursively from SEARCH_DIR
 find "$SEARCH_DIR" -type f \( $(echo $FILE_PATTERNS | sed 's/ / -o -name /g; s/^/ -name /') \) > files_to_format.txt
 

@@ -19,38 +19,29 @@ StackLayout& StackLayout::spacing(int s) {
 void StackLayout::layout(int offsetX, int offsetY) {
   this->x = offsetX;
   this->y = offsetY;
-  int currentChildPosX = this->x;
-  int currentChildPosY = this->y;
+  int currentX = x + offsetX;
+  int currentY = y + offsetY;
 
-  int totalWidth;
-  int totalHeight;
+  int maxChildWidth = 0;
+  int maxChildHeight = 0;
+  int totalContentSize = 0;
 
-  for (auto& c : children) {
-    if (!c)
-      continue;
-    c->layout(currentChildPosX, currentChildPosY);
+  for (const auto& child_ptr : children) {
+    if (!child_ptr) continue;
+
+    View* child = child_ptr.get();
+
     if (orient == Vertical) {
-      currentChildPosY += c->height + spacing_val;
-      totalWidth = std::max(totalWidth, c->width);
-      totalHeight += c->height + spacing_val;
+     child->pos(currentX, currentY + totalContentSize);
+     totalContentSize += child->height + spacing_val;
+     maxChildWidth = std::max(maxChildWidth, child->width);
     } else {
-      currentChildPosX += c->width + spacing_val;
-      totalWidth += c->width + spacing_val;
-      totalHeight = std::max(totalHeight, c->height);
+      child->pos(currentX + totalContentSize, currentY);
+      totalContentSize += child->width + spacing_val;
+      maxChildHeight = std::max(maxChildHeight, child->height);
     }
 
-    if (!children.empty()) {
-      if (orient == Vertical) {
-        this->width = totalWidth;
-        this->height = totalHeight - spacing_val;
-      } else {
-        this->width = totalWidth - spacing_val;
-        this->height = totalHeight;
-      }
-    } else {
-      this->width = 0;
-      this->height = 0;
-    }
+    child->layout(child->x, child->y);
   }
 }
 
@@ -61,12 +52,8 @@ void StackLayout::draw(SDL_Renderer* renderer) {
   View::draw(renderer);
 }
 
-void StackLayout::handleEvent(const SDL_Event& event) {
-  for (auto& child : children) {
-    if (child) {
-      child->handleEvent(event);
-    }
-  }
+bool StackLayout::handleProximaEvent(const ProximaEvent& event) {
+  return View::handleProximaEvent(event);
 }
 
 }  // Namespace UI

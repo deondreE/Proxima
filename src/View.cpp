@@ -9,16 +9,16 @@ View& View::z_index(int z) {
   return *this;
 }
 
-void View::insertChildSorted(View* child) {
+void View::insertChildSorted(std::unique_ptr<View> child) {
   auto it = std::lower_bound(
       children.begin(), children.end(), child,
-      [](const View* a, const View* b) {
+      [](const std::unique_ptr<View>& a, const std::unique_ptr<View>& b) {
         if (a->zIndex != b->zIndex)  {
           return a->zIndex < b->zIndex;
         }
-        return a < b;
+        return a.get() < b.get();
       });
-  children.insert(it, child);
+  children.insert(it, std::move(child));
   if (child) {
     child->parent = this;
   }
@@ -37,9 +37,10 @@ View& View::pos(int nx, int ny) {
 }
 
 void View::draw(SDL_Renderer* renderer) {
-  for (auto& c : children) {
-    if (c)
-      c->draw(renderer);
+  for (const auto& child_ptr : children) {
+    if (child_ptr) {
+      child_ptr->draw(renderer);
+    }
   }
 }
 
@@ -47,21 +48,16 @@ void View::layout(int offsetX, int offsetY) {
   int absoluteX = x + offsetX;
   int absoluteY = y + offsetY;
 
-  for (auto& c : children) {
-    if (c)
-      c->layout(absoluteX, absoluteY);
-  }
-}
-
-void View::handleEvent(const SDL_Event& event) {
-  for (auto& child : children) {
-    child->handleEvent(event);
+  for (const auto& child_ptr : children) {
+    if (child_ptr) {
+      child_ptr->layout(absoluteX, absoluteY);
+    }
   }
 }
 
 bool View::handleProximaEvent(const ProximaEvent& event) {
-  for (View* child : children) {
-    if (child->handleProximaEvent(event)) {
+  for (auto it = children.rbegin(); it != children.rend(); ++it) {
+    if (*it && (*it)->handleProximaEvent(event)) {
       return true;
     }
   }

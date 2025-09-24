@@ -19,7 +19,7 @@ class StackLayout : public View {
 
   void draw(SDL_Renderer* renderer) override;
   void layout(int ox, int oy) override;
-  void handleEvent(const SDL_Event& event) override;
+  bool handleProximaEvent(const ProximaEvent& event) override;
 };
 
 }  // Namespace UI

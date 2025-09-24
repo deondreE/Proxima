@@ -63,53 +63,52 @@ int main(int argc, char* argv[]) {
   }
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-  Text hello("Hello Proxima UI");
-  hello.size(300, 30);
-  hello.pos(0, 100);
-  hello.setFont("./examples/config/fonts/Delius-Regular.ttf", 20);
-  hello.setColor({0, 0, 0, 255});
+  View root;
 
-  Text hello2("Another Text Item (higher z and wrapped)");
-  hello2.size(350, 20);
-  hello2.setFont("./examples/config/fonts/Delius-Regular.ttf", 28);
-  hello2.setColor({0, 0, 0, 255});
-  hello2.z_index(24);
-  hello2.setWordWrap(true);
+  auto hello = std::make_unique<Text>("Hello Proxima UI");
+  hello->size(300, 30);
+  hello->pos(0, 100);
+  hello->setFont("./examples/config/fonts/Delius-Regular.ttf", 20);
+  hello->setColor({0, 0, 0, 255});
 
-  Button btn;
-  btn.size(120, 40)
+  auto hello2 = std::make_unique<Text>("Another Text Item (higher z and wrapped)");
+  hello2->size(350, 20);
+  hello2->setFont("./examples/config/fonts/Delius-Regular.ttf", 28);
+  hello2->setColor({0, 0, 0, 255});
+  hello2->z_index(24);
+  hello2->setWordWrap(true);
+
+  auto btn = std::make_unique<Button>();
+  btn->size(120, 40)
       .pos(10, 60)
       .setFont("./examples/config/fonts/Delius-Regular.ttf", 36)
       .text("Press this button!")
       .onClick(on_btn_clicked);
-  btn.setColor({255, 255, 255, 255});
+  btn->setColor({255, 255, 255, 255});
 
-  TextInput inputField;
-  inputField.pos(10, 10); 
-  inputField.size(380, 40); 
-  inputField.setFont("./examples/config/fonts/Delius-Regular.ttf", 24);
-  inputField.setColor({0, 0, 0, 255});
-  inputField.setCursorColor({0, 0, 255, 255});
-  inputField.setBackground({230, 230, 230, 255});
-  inputField.text("Type here...");
+  auto inputField = std::make_unique<TextInput>();
+  inputField->pos(10, 10); 
+  inputField->size(380, 40); 
+  inputField->setFont("./examples/config/fonts/Delius-Regular.ttf", 24);
+  inputField->setColor({0, 0, 0, 255});
+  inputField->setCursorColor({0, 0, 255, 255});
+  inputField->setBackground({230, 230, 230, 255});
+  inputField->text("Type here...");
 
-  Text testRectText("Input Some Text");
-  testRectText.setFont("./examples/config/fonts/Delius-Regular.ttf", 20);
-  Rect myRect(50, 50, 400, 300, {50, 50, 150, 200});
-  myRect.add({ &testRectText, &inputField });
+  auto testRectText = std::make_unique<Text>("Text in Rect!");
+  testRectText->setColor({255, 255, 255, 255});
+  testRectText->setFont("./examples/config/fonts/Delius-Regular.ttf", 20);
 
-  StackLayout layout;
-  layout.orientation(Vertical).spacing(20);
-  layout.pos(100, 100);
-  layout.add(btn);
-  layout.add(hello2);
-  layout.add(hello);
-  layout.add(myRect);
+  auto layout = std::make_unique<StackLayout>();
+  layout->orientation(Vertical).spacing(20);
+  layout->pos(100, 100);
+  layout->add(std::move(btn));
+  layout->add(std::move(hello2));
+  layout->add(std::move(hello));
 
-  View root;
   root.size(appConfig.initial_width, appConfig.initial_height);
   root.pos(0, 0);
-  root.add(layout);
+  root.add(std::move(layout));
 
   // Event Dispatcher
   EventDispatcher eventDispatcher(window);
@@ -168,7 +167,7 @@ int main(int argc, char* argv[]) {
     root.layout(0, 0);
     root.draw(renderer);
 
-    SDL_RenderPresent(renderer);  // Update the screen
+    SDL_RenderPresent(renderer);
   }
 
   TTF_Quit();

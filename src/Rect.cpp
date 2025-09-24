@@ -28,5 +28,4 @@ void Rect::draw(SDL_Renderer* renderer) {
 
     View::draw(renderer);
 }
-
 } // Namespace UI
