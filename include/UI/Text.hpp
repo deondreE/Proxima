@@ -29,7 +29,7 @@ public:
     Text& setColor(SDL_Color newColor);
 
     virtual void draw(SDL_Renderer* renderer) override;
-    virtual void handleEvent(const SDL_Event& event);
+    virtual void handleEvent(const SDL_Event& event) override;
 
     Text(const Text&) = delete;
     Text& operator=(const Text&) = delete;

@@ -32,11 +32,12 @@ void View::draw(SDL_Renderer* renderer) {
 }
 
 void View::layout(int offsetX, int offsetY) {
-  x += offsetX;
-  y += offsetY;
+  int absoluteX = x + offsetX;
+  int absoluteY = y + offsetY;
+  
   for (auto& c : children) {
     if (c)
-      c->layout(x, y);
+      c->layout(absoluteX, absoluteY);
   }
 }
 

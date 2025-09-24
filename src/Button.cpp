@@ -94,20 +94,25 @@ void Button::click() {
 void Button::draw(SDL_Renderer* renderer) {
   updateLabelTexture(renderer); 
 
+  // bg
   SDL_SetRenderDrawColor(renderer, 0xDD, 0xDD, 0xDD, 0xFF);
   SDL_FRect bg_rect = {(float)x, (float)y, (float)width, (float)height};
   SDL_RenderFillRect(renderer, &bg_rect);
 
+  // border
   SDL_SetRenderDrawColor(renderer, 0x55, 0x55, 0x55, 0xFF);
   SDL_RenderRect(renderer, &bg_rect);
 
   if (label_texture) {
-    int text_w, text_h;
-    SDL_FRect text_rect = { (float)x + (width - text_w) / 2,
-                              (float)y + (height - text_h) / 2,
-                              (float)text_w, (float)text_h };
+    float text_w, text_h;
+    SDL_GetTextureSize(label_texture, &text_w, &text_h);
+     SDL_FRect text_rect = { (float)x + (width - text_w) / 2.0f,
+                                (float)y + (height - text_h) / 2.0f,
+                                (float)text_w, (float)text_h };
     SDL_RenderTexture(renderer, label_texture, NULL, &text_rect);
   }
+
+  View::draw(renderer); 
 }
 
 void Button::handleEvent(const SDL_Event& event) {

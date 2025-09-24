@@ -58,6 +58,7 @@ void StackLayout::draw(SDL_Renderer* renderer) {
   for (auto& child : children) {
     child->draw(renderer);
   }
+  View::draw(renderer);
 }
 
 void StackLayout::handleEvent(const SDL_Event& event) {
