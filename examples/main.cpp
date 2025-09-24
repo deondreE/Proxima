@@ -8,6 +8,7 @@
 #include "UI/StackLayout.hpp"
 #include "UI/Text.hpp"
 #include "UI/View.hpp"
+#include "UI/TextInput.hpp"
 
 using namespace UI;
 
@@ -80,12 +81,22 @@ int main(int argc, char* argv[]) {
       .onClick(on_btn_clicked);
   btn.setColor({255, 255, 255, 255});
 
+  TextInput inputField;
+  inputField.pos(10, 10); 
+  inputField.size(380, 40); 
+  inputField.setFont("./examples/config/fonts/Delius-Regular.ttf", 24);
+  inputField.setColor({0, 0, 0, 255});
+  inputField.setCursorColor({0, 0, 255, 255});
+  inputField.setBackground({230, 230, 230, 255});
+  inputField.text("Type here...");
+
   StackLayout layout;
   layout.orientation(Vertical).spacing(20);
   layout.pos(100, 100);
   layout.add(btn);
   layout.add(hello2);
   layout.add(hello);
+  layout.add(inputField);
 
   View root;
   root.size(appConfig.initial_width, appConfig.initial_height);
@@ -96,6 +107,7 @@ int main(int argc, char* argv[]) {
   SDL_Event event;
 
   while (running) {
+    Uint32 currentTime = SDL_GetTicks();
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_EVENT_QUIT) {
         running = false;
@@ -107,6 +119,10 @@ int main(int argc, char* argv[]) {
       }
 
       root.handleEvent(event);
+    }
+
+    if (inputField.hasFocus()) {
+      inputField.handleEvent(event);
     }
 
     // Clear with blue background
