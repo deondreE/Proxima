@@ -12,7 +12,12 @@ View& View::z_index(int z) {
 void View::insertChildSorted(View* child) {
   auto it = std::lower_bound(
       children.begin(), children.end(), child,
-      [](const View* a, const View* b) { return a->zIndex < b->zIndex; });
+      [](const View* a, const View* b) {
+        if (a->zIndex != b->zIndex)  {
+          return a->zIndex < b->zIndex;
+        }
+        return a < b;
+      });
   children.insert(it, child);
   if (child) {
     child->parent = this;

@@ -9,6 +9,7 @@
 #include "UI/Text.hpp"
 #include "UI/View.hpp"
 #include "UI/TextInput.hpp"
+#include "UI/Rect.hpp"  
 
 #include "Core/EventDispatcher.hpp" 
 
@@ -92,13 +93,18 @@ int main(int argc, char* argv[]) {
   inputField.setBackground({230, 230, 230, 255});
   inputField.text("Type here...");
 
+  Text testRectText("Input Some Text");
+  testRectText.setFont("./examples/config/fonts/Delius-Regular.ttf", 20);
+  Rect myRect(50, 50, 400, 300, {50, 50, 150, 200});
+  myRect.add({ &testRectText, &inputField });
+
   StackLayout layout;
   layout.orientation(Vertical).spacing(20);
   layout.pos(100, 100);
   layout.add(btn);
   layout.add(hello2);
   layout.add(hello);
-  layout.add(inputField);
+  layout.add(myRect);
 
   View root;
   root.size(appConfig.initial_width, appConfig.initial_height);

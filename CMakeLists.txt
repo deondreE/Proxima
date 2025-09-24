@@ -27,6 +27,7 @@ add_library(proxima_ui
   src/Text.cpp
   src/Core/EventDispatcher.cpp
   src/TextInput.cpp
+  src/Rect.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC

@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <initializer_list>
 
 #include "../Core/ProximaEvent.hpp"
 
@@ -32,6 +33,16 @@ class View {
   T& add(T& child) {
     children.push_back(&child);
     return child;
+  }
+
+  View& add(std::initializer_list <View*> newChildren) {
+    for (View* child : newChildren) {
+      if (child) {
+        children.push_back(child);
+        child->parent = this;
+      }
+    }
+    return *this;
   }
 
   virtual void draw(SDL_Renderer* renderer);
