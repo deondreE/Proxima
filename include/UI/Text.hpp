@@ -16,15 +16,22 @@ private:
     SDL_Texture* text_texture;
     bool texture_needs_update; 
 
+    bool word_wrap;
+
     void updateTexture(SDL_Renderer* renderer);
 public:
     Text(const std::string& text = "", TTF_Font* initial_font = nullptr, SDL_Color color = {0, 0, 0, 255});
 
     ~Text() override;
 
-    Text& size(int w, int h) { View::size(w, h); return *this; }
+    Text& size(int w, int h) { 
+        View::size(w, h);
+        texture_needs_update = true;
+        return *this;
+    }
     Text& pos(int nx, int ny) { View::pos(nx, ny); return *this; }
     Text& content(const std::string& str);
+    Text& setWordWrap(bool wrap);
     Text& setFont(TTF_Font* newFont);
     Text& setColor(SDL_Color newColor);
 

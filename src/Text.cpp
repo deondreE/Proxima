@@ -8,7 +8,8 @@ text_content(text_str),
 font(initialFont),
 text_color(color),
 text_texture(nullptr),
-texture_needs_update(false) {
+texture_needs_update(false),
+word_wrap(false) {
 
 }
 
@@ -29,18 +30,28 @@ void Text::updateTexture(SDL_Renderer* renderer) {
         text_texture = nullptr;
     }
 
-    SDL_Surface* text_surface = TTF_RenderText_Blended(font, text_content.c_str(), text_content.length(), text_color);
-    if (!text_surface) {
+    SDL_Surface* surface = nullptr;
+    if (word_wrap) {
+        if (width > 0) {
+            surface = TTF_RenderText_Blended_Wrapped(font, text_content.c_str(), text_content.length(), text_color, width);
+        } else {
+            surface = TTF_RenderText_Blended(font, text_content.c_str(), text_content.length(), text_color);
+        }
+    } else {
+        surface = TTF_RenderText_Blended(font, text_content.c_str(), text_content.length(), text_color);
+    }
+
+    if (!surface) {
         std::cerr << "Text::updateTexture:: Failed to render text surface: " << std::endl;
         return;
     }
 
-    text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+    text_texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (!text_texture) {
         std::cerr << "Failed to create text texture: " << SDL_GetError() << std::endl;
     }
 
-    SDL_DestroySurface(text_surface);
+    SDL_DestroySurface(surface);
     texture_needs_update = false;
 }
 
@@ -66,6 +77,14 @@ Text& Text::setColor(SDL_Color newColor) {
             text_color = newColor;
             texture_needs_update = true;
         }
+    return *this;
+}
+
+Text& Text::setWordWrap(bool wrap) {
+    if (word_wrap != wrap) {
+        word_wrap = wrap;
+        texture_needs_update = true; 
+    }
     return *this;
 }
 

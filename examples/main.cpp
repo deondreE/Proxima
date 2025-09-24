@@ -75,6 +75,13 @@ int main(int argc, char* argv[]) {
     hello.setFont(g_ui_font);
     hello.setColor({0,0,0,255});
 
+    Text hello2("Another Text Item (higher z and wrapped)");
+    hello2.size(350, 20);
+    hello2.setFont(g_ui_font);
+    hello2.setColor({0, 0, 0, 255});
+    hello2.z_index(24);
+    hello2.setWordWrap(true);
+
     Button btn;
     btn.size(120, 40)
         .pos(10, 60)
@@ -87,6 +94,7 @@ int main(int argc, char* argv[]) {
     layout.orientation(Vertical).spacing(20);
     layout.pos(100, 100);
     layout.add(btn);
+    layout.add(hello2);
     layout.add(hello);
 
     View root;

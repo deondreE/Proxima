@@ -10,7 +10,6 @@ namespace UI {
 
 class View {
  private:
-  std::vector<View*> children;
   View* parent = nullptr;
 
   void insertChildSorted(View* child);
