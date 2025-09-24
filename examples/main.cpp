@@ -16,7 +16,6 @@ void on_btn_clicked() {
 }
 
 ConfigManager configManager;
-
 int main(int argc, char* argv[]) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError()
