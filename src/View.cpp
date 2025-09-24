@@ -4,11 +4,19 @@
 
 namespace UI {
 
-void View::draw() {
-  std::cout << "Drawing Generic View (" << width << "x" << height << ")\n";
-  for (auto& c : children) {
-    if (c)
-      c->draw();
+View& View::z_index(int z) {
+  zIndex = z;
+  return *this;
+}
+
+void View::insertChildSorted(View* child) {
+  auto it = std::lower_bound(children.begin(), children.end(), child, 
+    [](const View* a, const View* b) {
+      return a->zIndex < b->zIndex;
+    });
+  children.insert(it, child);
+  if (child) {
+    child->parent = this;
   }
 }
 

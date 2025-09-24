@@ -4,20 +4,27 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 namespace UI {
 
 class View {
+ private:
+  std::vector<View*> children;
+  View* parent = nullptr;
+
+  void insertChildSorted(View* child);
  public:
-  int x{0}, y{0}, width{100}, height{30};
+  int x{0}, y{0}, width{100}, height{30}, zIndex{0};
+
   std::vector<View*> children;
 
+  View() = default;
   virtual ~View() = default;
-
-  virtual void draw();
 
   View& size(int w, int h);
   View& pos(int nx, int ny);
+  View& z_index(int z);
 
   template <typename T>
   T& add(T& child) {
@@ -26,9 +33,13 @@ class View {
   }
 
   virtual void draw(SDL_Renderer* renderer);
-
   virtual void layout(int offsetX, int offsetY);
   virtual void handleEvent(const SDL_Event& event);
+
+  View(const View&) = delete;
+  View& operator=(const View&) = delete;
+  View(View&&) = delete;
+  View& operator=(View&&) = delete;
 };
 
 }  // Namespace UI
