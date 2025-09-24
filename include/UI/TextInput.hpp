@@ -13,11 +13,12 @@ class TextInput : public View {
   int cursorPosition = 0;
   bool isFocused = false;
 
-  TTF_Font* font;
-  SDL_Texture* text_texture;
+  TTF_Font* font = nullptr;
+  SDL_Texture* text_texture = nullptr;
   std::string font_path;
   bool dirty = false;
   int font_size;
+
   bool texture_needs_update;
   SDL_Color textColor = {0, 0, 0, 255};
   SDL_Color cursorColor = {0, 0, 0, 255};
@@ -25,10 +26,10 @@ class TextInput : public View {
 
   Uint32 lastBlinkTime = 0;
   bool cursorVisible = true;
-  const Uint32 Blink_Interva_MS = 500;
+  const Uint32 Blink_Interval_MS = 500;
 
   void updateTexture(SDL_Renderer* renderer);
-  bool reopenFont();
+  bool reopenFont(SDL_Renderer* renderer);
 
  public:
   TextInput();

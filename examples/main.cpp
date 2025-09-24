@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3_image/SDL_image.h>
 #include <iostream>
 #include <memory>
 
@@ -10,6 +11,7 @@
 #include "UI/View.hpp"
 #include "UI/TextInput.hpp"
 #include "UI/Rect.hpp"  
+#include "UI/Image.hpp" 
 
 #include "Core/EventDispatcher.hpp" 
 
@@ -99,6 +101,11 @@ int main(int argc, char* argv[]) {
   testRectText->setColor({255, 255, 255, 255});
   testRectText->setFont("./examples/config/fonts/Delius-Regular.ttf", 20);
 
+  auto backgroundImage = std::make_unique<Image>(); 
+  backgroundImage->pos(0, 0).size(appConfig.initial_width, appConfig.initial_height);
+  backgroundImage->z_index(-100);
+  backgroundImage->setImagePath("./examples/assets/test-app.png");
+
   auto layout = std::make_unique<StackLayout>();
   layout->orientation(Vertical).spacing(20);
   layout->pos(100, 100);
@@ -109,7 +116,9 @@ int main(int argc, char* argv[]) {
   root.size(appConfig.initial_width, appConfig.initial_height);
   root.pos(0, 0);
   root.add(std::move(layout));
-
+  root.add(std::move(backgroundImage));
+  TextInput* inputPtr = inputField.get();
+  root.add(std::move(inputField));
   // Event Dispatcher
   EventDispatcher eventDispatcher(window);
   bool running = true;
@@ -158,8 +167,16 @@ int main(int argc, char* argv[]) {
   });
 
   while (running) {
+    Uint32 currentTime = SDL_GetTicks();
+
+
     eventDispatcher.pollAndTranslate();
     eventDispatcher.dispatch();
+
+    if (inputPtr) {
+      inputPtr->updateCursorBlink(currentTime);
+    }
+
     // Clear with blue background
     SDL_SetRenderDrawColor(renderer, 100, 149, 237, 255);
     SDL_RenderClear(renderer);

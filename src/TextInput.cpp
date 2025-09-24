@@ -51,23 +51,22 @@ void TextInput::updateTexture(SDL_Renderer* renderer) {
   texture_needs_update = false;
 }
 
-bool TextInput::reopenFont() {
+bool TextInput::reopenFont(SDL_Renderer*  renderer) {
   if (font) {
     TTF_CloseFont(font);
     font = nullptr;
   }
 
-  if (!font_path.empty() && font_size > 0) {
+  if (!font_path.empty())  {
     font = TTF_OpenFont(font_path.c_str(), font_size);
     if (!font) {
-      std::cerr << "Text::reopenFont: Failed to open font '" << font_path
-                << "' with size " << font_size << "! TTF_Error: " << std::endl;
-      return false;
+      std::cerr << "Broky" << std::endl;
+    } else {
+      return true;
     }
   }
-  texture_needs_update = true;
-
-  return true;
+  
+  return false;
 }
 
 TextInput& TextInput::text(const std::string& str) {
@@ -80,7 +79,7 @@ TextInput& TextInput::setFont(const std::string& fontPath, int size) {
   if (font_path != fontPath || font_size != size) {
     font_path = fontPath;
     font_size = size;
-    reopenFont();
+        // reopenFont();
   }
   return *this;
 }
@@ -102,6 +101,7 @@ TextInput& TextInput::setBackground(SDL_Color clr) {
 
 void TextInput::draw(SDL_Renderer* renderer) {
   if (!font) {
+    reopenFont(renderer);
     std::cerr << "TextInput: Font not set, cannot render." << std::endl;
     return;
   }
@@ -126,31 +126,40 @@ void TextInput::draw(SDL_Renderer* renderer) {
   }
 
   if (isFocused && cursorVisible) {
-    int cursorDrawX = x;
-    if (!textBuffer.empty()) {
-      int avgCharWidth = std::max(
-          1,
-          width / std::max(
-                      1, (int)textBuffer
-                             .length()));  // Rough guess for average char width
-      cursorDrawX = x + std::min(cursorPosition * avgCharWidth,
-                                 width - 20);  // Clamp within field
-      if (cursorPosition == 0)
-        cursorDrawX = x;  // At the start if cursor is at beginning
-      else if (cursorPosition == textBuffer.length())
-        cursorDrawX = x + static_cast<int>(textBuffer.length() *
-                                           avgCharWidth);  // At the end
-      else
-        cursorDrawX =
-            x + static_cast<int>(cursorPosition * avgCharWidth);  // Mid-string
-      // Clamp cursor position to be visible within the field
-      cursorDrawX = std::max(x, std::min(cursorDrawX, x + width - 2));
+    int cursorDrawX = 0;
+    int byte_index_at_cursor = 0;
+    std::string prefix_text;
+    if (cursorPosition > 0 && !textBuffer.empty()) {
+      const char* utf_text = textBuffer.c_str();
+      for (int i = 0; utf_text[i] != '\0' && cursorDrawX < cursorPosition; ++i) {
+        if ((utf_text[i] & 0xC0) !=  0x80) {
+          cursorDrawX++;
+        }
+        byte_index_at_cursor = i+1;
+      }
+
+      if (cursorDrawX < cursorPosition) {
+        byte_index_at_cursor = textBuffer.length();
+      }
+      prefix_text = textBuffer.substr(0, byte_index_at_cursor);
+    } else {
+      prefix_text = "";
+    }
+
+    int mWidth;
+    size_t length;
+    if (TTF_MeasureString(font, prefix_text.c_str(), prefix_text.length(), width, &mWidth, &length)) {
+      cursorDrawX = mWidth;
+    } else {
+      std::cerr << "Mesure erorr brokey" << std::endl;
     }
 
     SDL_SetRenderDrawColor(renderer, cursorColor.r, cursorColor.g,
                            cursorColor.b, cursorColor.a);
-    SDL_FRect cursorRect = {(float)cursorDrawX, (float)y + 5.0f, 2.0f,
-                            (float)height - 10.0f};  // Simple cursor line
+    SDL_FRect cursorRect = {(float)x + 3.0f + cursorDrawX, 
+                            (float)y + (height - font_size) / 2.0f,
+                             2.0f,
+                            (float)font_size};  // Simple cursor line
     SDL_RenderFillRect(renderer, &cursorRect);
   }
 
@@ -231,11 +240,12 @@ bool TextInput::handleProximaEvent(const ProximaEvent& event) {
   return View::handleProximaEvent(event);
 }
 
+
 void TextInput::insertCharacter(const std::string& text_utf8) {
   if (!isFocused) return;
   if (cursorPosition >= 0 && cursorPosition <= (int)textBuffer.length()) {
     textBuffer.insert(cursorPosition, text_utf8);
-    cursorPosition += text_utf8.length(); // Advance cursor by number of bytes inserted
+    cursorPosition += text_utf8.length();
     texture_needs_update = true;
     cursorVisible = true;
     lastBlinkTime = SDL_GetTicks();
@@ -243,8 +253,7 @@ void TextInput::insertCharacter(const std::string& text_utf8) {
 }
 
 void TextInput::deleteCharacter() {
-  if (!isFocused)
-    return;
+  if (!isFocused) return;
   if (cursorPosition > 0) {
     textBuffer.erase(cursorPosition - 1, 1);
     cursorPosition--;
@@ -255,16 +264,11 @@ void TextInput::deleteCharacter() {
 }
 
 void TextInput::moveCursor(int delta) {
-  if (!isFocused)
-    return;
-  cursorPosition += delta;
-  if (cursorPosition < 0)
-    cursorPosition = 0;
-  if (cursorPosition > textBuffer.length())
-    cursorPosition = textBuffer.length();
-
+  if (!isFocused) return;
+  cursorPosition += std::clamp(cursorPosition + delta, 0, (int)textBuffer.length());
   cursorVisible = true;
   lastBlinkTime = SDL_GetTicks();
+  texture_needs_update = true; 
 }
 
 void TextInput::updateCursorBlink(Uint32 currentTimeMillis) {
@@ -272,7 +276,7 @@ void TextInput::updateCursorBlink(Uint32 currentTimeMillis) {
     cursorVisible = false;
     return;
   }
-  if (currentTimeMillis - lastBlinkTime > 0) {
+  if (currentTimeMillis - lastBlinkTime > Blink_Interval_MS) {
     cursorVisible = !cursorVisible;
     lastBlinkTime = currentTimeMillis;
     requestRedraw();  // Signal redraw if cursor state changes

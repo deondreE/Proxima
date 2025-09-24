@@ -18,6 +18,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 find_package(X11 REQUIRED)
 
 add_subdirectory(external/yaml-cpp)
+add_subdirectory(external/sdl_image)
 
 add_library(proxima_ui
   src/View.cpp
@@ -28,15 +29,27 @@ add_library(proxima_ui
   src/Core/EventDispatcher.cpp
   src/TextInput.cpp
   src/Rect.cpp
+  src/Image.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(proxima_ui PUBLIC X11::X11 yaml-cpp SDL3::SDL3 SDL3_ttf::SDL3_ttf)
+target_link_libraries(proxima_ui PUBLIC
+  X11::X11
+  yaml-cpp
+  SDL3::SDL3
+  SDL3_ttf::SDL3_ttf
+  SDL3_image::SDL3_image
+ )
 
 add_executable(example_app examples/main.cpp)
 
-target_link_libraries(example_app PUBLIC yaml-cpp)
-target_link_libraries(example_app PRIVATE proxima_ui SDL3::SDL3 SDL3_ttf::SDL3_ttf)
+target_link_libraries(example_app PRIVATE 
+    yaml-cpp 
+    proxima_ui
+    SDL3::SDL3
+    SDL3_ttf::SDL3_ttf
+    SDL3_image::SDL3_image
+)
