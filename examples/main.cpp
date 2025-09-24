@@ -11,8 +11,6 @@
 
 using namespace UI;
 
-TTF_Font* g_ui_font = nullptr;
-
 void on_btn_clicked() {
     std::cout << "Button clicked!\n";
 }
@@ -57,27 +55,15 @@ int main(int argc, char* argv[]) {
     }
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    g_ui_font = TTF_OpenFont("./examples/config/fonts/Delius-Regular.ttf", 24);
-    if (!g_ui_font) {
-        std::cerr << "Failed to load font! TTF_Error: " << std::endl;
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        TTF_Quit();
-        SDL_Quit();
-        return 1;
-    } else {
-        std::cout << "worked!";
-    }
-
     Text hello("Hello Proxima UI");
     hello.size(300, 30);
     hello.pos(0, 100);
-    hello.setFont(g_ui_font);
+    hello.setFont("./examples/config/fonts/Delius-Regular.ttf", 20);
     hello.setColor({0,0,0,255});
 
     Text hello2("Another Text Item (higher z and wrapped)");
     hello2.size(350, 20);
-    hello2.setFont(g_ui_font);
+    hello2.setFont("./examples/config/fonts/Delius-Regular.ttf", 28);
     hello2.setColor({0, 0, 0, 255});
     hello2.z_index(24);
     hello2.setWordWrap(true);
@@ -85,7 +71,7 @@ int main(int argc, char* argv[]) {
     Button btn;
     btn.size(120, 40)
         .pos(10, 60)
-        .setFont(g_ui_font)
+        .setFont("./examples/config/fonts/Delius-Regular.ttf", 36)
         .text("Press this button!")
         .onClick(on_btn_clicked);
     btn.setColor({255, 255, 255, 255});
@@ -122,21 +108,13 @@ int main(int argc, char* argv[]) {
         // Clear with blue background
         SDL_SetRenderDrawColor(renderer, 100, 149, 237, 255);
         SDL_RenderClear(renderer);
-
-        // Draw a simple rectangle to test basic rendering
-        // SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        // SDL_FRect rect = {50, 50, 200, 100};
-        // SDL_RenderFillRect(renderer, &rect);
-
+        
         root.layout(0, 0);
         root.draw(renderer);
 
         SDL_RenderPresent(renderer); // Update the screen
     }
 
-    if (g_ui_font) {
-        TTF_CloseFont(g_ui_font);
-    }
     TTF_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

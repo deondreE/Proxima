@@ -3,17 +3,42 @@
 
 namespace UI {
 
-Button::Button(TTF_Font* defaultFont, SDL_Color defaultColor)
-    : font(defaultFont),
+void Button::reopenFont() {
+    if (font) {
+        TTF_CloseFont(font);
+        font = nullptr;
+    }
+    if (!font_path.empty() && font_size > 0) {
+        font = TTF_OpenFont(font_path.c_str(), font_size);
+        if (!font) {
+            std::cerr << "Button::reopenFont: Failed to open font '" << font_path
+                      << "' with size " << font_size << "! TTF_Error: " << std::endl;
+        }
+    }
+    texture_needs_update = true;
+}
+
+Button::Button(const std::string& text_label, const std::string& initial_font_path,
+               int initial_font_size, SDL_Color defaultColor)
+    : label(text_label),
+      font(nullptr),
+      font_path(initial_font_path),
+      font_size(initial_font_size),
       text_color(defaultColor),
       label_texture(nullptr),
       texture_needs_update(true),
-      is_pressed(false) {}
+      is_pressed(false) {
+    reopenFont(); // Open font initially
+}
 
 Button::~Button() {
   if (label_texture) {
     SDL_DestroyTexture(label_texture);
     label_texture = nullptr;
+  }
+  if (font) { // Close font when Button object is destroyed
+      TTF_CloseFont(font);
+      font = nullptr;
   }
 }
 
@@ -69,10 +94,11 @@ Button& Button::onClick(std::function<void()> cb) {
   return *this;
 }
 
-Button& Button::setFont(TTF_Font* newFont) {
-  if (font != newFont) {
-    font = newFont;
-    texture_needs_update = true;
+Button& Button::setFont(const std::string& fontPath, int size) {
+  if (font_path != fontPath || font_size != size) {
+    font_path = fontPath;
+    font_size = size;
+    reopenFont(); // Reopen the font with new parameters
   }
   return *this;
 }

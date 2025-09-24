@@ -11,6 +11,8 @@ class Text :  public View
 private:
     std::string text_content;
     TTF_Font* font;
+    std::string font_path;
+    int font_size;
     SDL_Color text_color;
 
     SDL_Texture* text_texture;
@@ -19,8 +21,10 @@ private:
     bool word_wrap;
 
     void updateTexture(SDL_Renderer* renderer);
+    bool reopenFont();
 public:
-    Text(const std::string& text = "", TTF_Font* initial_font = nullptr, SDL_Color color = {0, 0, 0, 255});
+    Text(const std::string& text = "", const std::string& initial_font_path = "",
+       int initial_font_size = 24, SDL_Color color = {0, 0, 0, 255});
 
     ~Text() override;
 
@@ -32,7 +36,7 @@ public:
     Text& pos(int nx, int ny) { View::pos(nx, ny); return *this; }
     Text& content(const std::string& str);
     Text& setWordWrap(bool wrap);
-    Text& setFont(TTF_Font* newFont);
+    Text& setFont(const std::string& fontPath, int size);
     Text& setColor(SDL_Color newColor);
 
     virtual void draw(SDL_Renderer* renderer) override;

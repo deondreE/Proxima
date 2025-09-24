@@ -3,20 +3,47 @@
 
 namespace UI {
 
-Text::Text(const std::string& text_str, TTF_Font* initialFont, SDL_Color color) : 
-text_content(text_str),
-font(initialFont),
-text_color(color),
-text_texture(nullptr),
-texture_needs_update(false),
-word_wrap(false) {
+bool Text::reopenFont() {
+    if (font) {
+        TTF_CloseFont(font);
+        font = nullptr;
+    }
 
+    if (!font_path.empty() && font_size > 0) {
+        font = TTF_OpenFont(font_path.c_str(), font_size);
+        if (!font) {
+             std::cerr << "Text::reopenFont: Failed to open font '" << font_path
+                      << "' with size " << font_size << "! TTF_Error: " << std::endl;
+                      return  false;
+        }
+    }
+    texture_needs_update = true;
+
+    return  true;
+}
+
+Text::Text(const std::string& text, const std::string& initial_font_path,
+           int initial_font_size, SDL_Color color)
+    : text_content(text),
+      font(nullptr), // Initialize font to nullptr
+      font_path(initial_font_path), // Store path
+      font_size(initial_font_size), // Store size
+      text_color(color),
+      text_texture(nullptr),
+      texture_needs_update(true),
+      word_wrap(false) {
+    reopenFont();
 }
 
 Text::~Text()  {
     if (text_texture) {
         SDL_DestroyTexture(text_texture);
         text_texture = nullptr;
+    }
+
+    if (font) {
+        TTF_CloseFont(font);
+        font = nullptr;
     }
 }
 
@@ -63,10 +90,11 @@ Text& Text::content(const std::string& str) {
     return *this;
 }
 
-Text& Text::setFont(TTF_Font* newFont) {
-    if (font != newFont) {
-        font = newFont;
-        texture_needs_update = true;
+Text& Text::setFont(const std::string& fontPath, int size) {
+    if (font_path != fontPath || font_size != size) {
+        font_path = fontPath;
+        font_size = size;
+        reopenFont();
     }
     return *this;
 }

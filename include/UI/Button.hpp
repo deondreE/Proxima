@@ -10,15 +10,19 @@ class Button : public View {
   std::string label;
   std::function<void()> onClickHandler;
   TTF_Font* font;
+  std::string font_path; 
+  int font_size;
   SDL_Color text_color;
   SDL_Texture* label_texture;
   bool texture_needs_update; 
   bool is_pressed;
 
   void updateLabelTexture(SDL_Renderer* renderer);
+  void reopenFont();
 
  public:
-  Button(TTF_Font* defaultFont = nullptr, SDL_Color defaultColor = {0,0,0,255});
+  Button(const std::string& text = "", const std::string& initial_font_path = "",
+           int initial_font_size = 24, SDL_Color defaultColor = {0, 0, 0, 255});
   ~Button() override;
 
   Button& size(int w, int h) {
@@ -31,7 +35,7 @@ class Button : public View {
   }
   Button& text(const std::string& str);
   Button& onClick(std::function<void()> cb);
-  Button& setFont(TTF_Font* newFont);
+  Button& setFont(const std::string& fontPath, int size);
   Button& setColor(SDL_Color newColor);
 
   void click();
