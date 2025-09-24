@@ -4,22 +4,23 @@
 namespace UI {
 
 void Button::reopenFont() {
-    if (font) {
-        TTF_CloseFont(font);
-        font = nullptr;
+  if (font) {
+    TTF_CloseFont(font);
+    font = nullptr;
+  }
+  if (!font_path.empty() && font_size > 0) {
+    font = TTF_OpenFont(font_path.c_str(), font_size);
+    if (!font) {
+      std::cerr << "Button::reopenFont: Failed to open font '" << font_path
+                << "' with size " << font_size << "! TTF_Error: " << std::endl;
     }
-    if (!font_path.empty() && font_size > 0) {
-        font = TTF_OpenFont(font_path.c_str(), font_size);
-        if (!font) {
-            std::cerr << "Button::reopenFont: Failed to open font '" << font_path
-                      << "' with size " << font_size << "! TTF_Error: " << std::endl;
-        }
-    }
-    texture_needs_update = true;
+  }
+  texture_needs_update = true;
 }
 
-Button::Button(const std::string& text_label, const std::string& initial_font_path,
-               int initial_font_size, SDL_Color defaultColor)
+Button::Button(const std::string& text_label,
+               const std::string& initial_font_path, int initial_font_size,
+               SDL_Color defaultColor)
     : label(text_label),
       font(nullptr),
       font_path(initial_font_path),
@@ -28,7 +29,7 @@ Button::Button(const std::string& text_label, const std::string& initial_font_pa
       label_texture(nullptr),
       texture_needs_update(true),
       is_pressed(false) {
-    reopenFont(); // Open font initially
+  reopenFont();  // Open font initially
 }
 
 Button::~Button() {
@@ -36,9 +37,9 @@ Button::~Button() {
     SDL_DestroyTexture(label_texture);
     label_texture = nullptr;
   }
-  if (font) { // Close font when Button object is destroyed
-      TTF_CloseFont(font);
-      font = nullptr;
+  if (font) {  // Close font when Button object is destroyed
+    TTF_CloseFont(font);
+    font = nullptr;
   }
 }
 
@@ -98,7 +99,7 @@ Button& Button::setFont(const std::string& fontPath, int size) {
   if (font_path != fontPath || font_size != size) {
     font_path = fontPath;
     font_size = size;
-    reopenFont(); // Reopen the font with new parameters
+    reopenFont();  // Reopen the font with new parameters
   }
   return *this;
 }
@@ -119,7 +120,7 @@ void Button::click() {
 }
 
 void Button::draw(SDL_Renderer* renderer) {
-  updateLabelTexture(renderer); 
+  updateLabelTexture(renderer);
 
   // bg
   if (is_pressed) {
@@ -127,7 +128,7 @@ void Button::draw(SDL_Renderer* renderer) {
   } else {
     SDL_SetRenderDrawColor(renderer, 0xDD, 0xDD, 0xDD, 0xFF);
   }
-  
+
   SDL_FRect bg_rect = {(float)x, (float)y, (float)width, (float)height};
   SDL_RenderFillRect(renderer, &bg_rect);
 
@@ -138,13 +139,13 @@ void Button::draw(SDL_Renderer* renderer) {
   if (label_texture) {
     float text_w, text_h;
     SDL_GetTextureSize(label_texture, &text_w, &text_h);
-     SDL_FRect text_rect = { (float)x + (width - text_w) / 2.0f,
-                                (float)y + (height - text_h) / 2.0f,
-                                (float)text_w, (float)text_h };
+    SDL_FRect text_rect = {(float)x + (width - text_w) / 2.0f,
+                           (float)y + (height - text_h) / 2.0f, (float)text_w,
+                           (float)text_h};
     SDL_RenderTexture(renderer, label_texture, NULL, &text_rect);
   }
 
-  View::draw(renderer); 
+  View::draw(renderer);
 }
 
 void Button::handleEvent(const SDL_Event& event) {
@@ -156,8 +157,7 @@ void Button::handleEvent(const SDL_Event& event) {
         click();
       }
     }
-  }
-  else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+  } else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
     if (event.button.button == SDL_BUTTON_LEFT) {
       is_pressed = false;
     }

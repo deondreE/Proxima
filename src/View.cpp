@@ -10,10 +10,9 @@ View& View::z_index(int z) {
 }
 
 void View::insertChildSorted(View* child) {
-  auto it = std::lower_bound(children.begin(), children.end(), child, 
-    [](const View* a, const View* b) {
-      return a->zIndex < b->zIndex;
-    });
+  auto it = std::lower_bound(
+      children.begin(), children.end(), child,
+      [](const View* a, const View* b) { return a->zIndex < b->zIndex; });
   children.insert(it, child);
   if (child) {
     child->parent = this;
@@ -42,7 +41,7 @@ void View::draw(SDL_Renderer* renderer) {
 void View::layout(int offsetX, int offsetY) {
   int absoluteX = x + offsetX;
   int absoluteY = y + offsetY;
-  
+
   for (auto& c : children) {
     if (c)
       c->layout(absoluteX, absoluteY);

@@ -5,13 +5,11 @@ Before worrying about other languages, ensure your C++ core is stable and well-t
 
 
 - Robust Rendering Pipeline:
-	- Text Rendering: Make it reliable with different fonts, sizes, and styles. Consider text wrapping.
 
 	- Basic Shapes: Ensure drawing rectangles, circles (if planned), and lines is efficient and correct.
 
 	- Image Handling: Loading and rendering static images.
 
-	- Z-ordering/Layering: How elements stack visually.
 
 
 - Fundamental Widgets:

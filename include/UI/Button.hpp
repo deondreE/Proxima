@@ -1,7 +1,7 @@
 #pragma once
+#include <SDL3_ttf/SDL_ttf.h>
 #include <functional>
 #include <string>
-#include <SDL3_ttf/SDL_ttf.h>
 #include "View.hpp"
 
 namespace UI {
@@ -10,19 +10,20 @@ class Button : public View {
   std::string label;
   std::function<void()> onClickHandler;
   TTF_Font* font;
-  std::string font_path; 
+  std::string font_path;
   int font_size;
   SDL_Color text_color;
   SDL_Texture* label_texture;
-  bool texture_needs_update; 
+  bool texture_needs_update;
   bool is_pressed;
 
   void updateLabelTexture(SDL_Renderer* renderer);
   void reopenFont();
 
  public:
-  Button(const std::string& text = "", const std::string& initial_font_path = "",
-           int initial_font_size = 24, SDL_Color defaultColor = {0, 0, 0, 255});
+  Button(const std::string& text = "",
+         const std::string& initial_font_path = "", int initial_font_size = 24,
+         SDL_Color defaultColor = {0, 0, 0, 255});
   ~Button() override;
 
   Button& size(int w, int h) {

@@ -1,10 +1,10 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include <algorithm>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 namespace UI {
 
@@ -13,6 +13,7 @@ class View {
   View* parent = nullptr;
 
   void insertChildSorted(View* child);
+
  public:
   int x{0}, y{0}, width{100}, height{30}, zIndex{0};
 

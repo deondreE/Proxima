@@ -49,7 +49,7 @@ void StackLayout::layout(int offsetX, int offsetY) {
       }
     } else {
       this->width = 0;
-      this->height = 0; 
+      this->height = 0;
     }
   }
 }
@@ -65,7 +65,7 @@ void StackLayout::handleEvent(const SDL_Event& event) {
   for (auto& child : children) {
     if (child) {
       child->handleEvent(event);
-    } 
+    }
   }
 }
 
