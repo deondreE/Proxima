@@ -21,11 +21,26 @@ git clone <repo_link> --recursive
 
 > **Macos**
 
-Not currently supported
+> Note: there is no code resulting for the Macos Platform this will just not compile.
+
+```bash
+# REQUIRES METAL
+xcode --select install # something like that
+
+cmake -S . -B build #only first run
+cmake --build build
+```
 
 > **Windows**
 
-Not currently supported
+> Note: there is no code resulting for the Windows Platform this will just not compile.
+
+
+```powershell
+# REQUIRED -> DX11 and MSVC 19.40 at least
+cmake -S . -B build
+cmake --build build
+```
 
 > **Arch Linux**
 
@@ -41,8 +56,6 @@ cmake -S . -B build # for first build only
 cmake --build build
 ./build/example_app
 ```
-
-
 
 ---
 
