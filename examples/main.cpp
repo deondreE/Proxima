@@ -13,13 +13,12 @@
 #include "UI/Rect.hpp"  
 #include "UI/Image.hpp" 
 #include "UI/Slider.hpp"
-
 #include "Core/EventDispatcher.hpp" 
 
 using namespace UI;
 
 void on_btn_clicked() {
-  std::cout << "Button clicked!\n";
+  std::cout << "Button Clicked!\n";
 }
 
 ConfigManager configManager;
@@ -107,9 +106,17 @@ int main(int argc, char* argv[]) {
   inputField->setBackground({230, 230, 230, 255});
   inputField->text("Type here...");
 
-  auto testRectText = std::make_unique<Text>("Text in Rect!");
-  testRectText->setColor({255, 255, 255, 255});
-  testRectText->setFont("./examples/config/fonts/Delius-Regular.ttf", 20);
+  auto parentRect = std::make_unique<Rect>(50, 50, 200, 100, SDL_Color{255, 0, 0, 255});
+
+  auto Childbtn = std::make_unique<Button>();
+  Childbtn->size(80, 30)
+      .pos(0, 20)
+      .setFont("./examples/config/fonts/Delius-Regular.ttf", 36)
+      .text("Press this button!")
+      .onClick(on_btn_clicked)
+      .z_index(10);
+  Childbtn->setColor({255, 255, 255, 255});
+  parentRect->add(std::move(Childbtn));
 
   auto backgroundImage = std::make_unique<Image>(); 
   backgroundImage->pos(0, 0).size(appConfig.initial_width, appConfig.initial_height);
@@ -120,16 +127,17 @@ int main(int argc, char* argv[]) {
   layout->orientation(Vertical).spacing(20);
   layout->pos(100, 100);
   layout->add(std::move(btn));
-  layout->add(std::move(hello2));
-  layout->add(std::move(hello));
+  // layout->add(std::move(hello2));
+  // layout->add(std::move(hello));
 
   root.size(appConfig.initial_width, appConfig.initial_height);
   root.pos(0, 0);
   root.add(std::move(layout));
-  root.add(std::move(backgroundImage));
+  // root.add(std::move(backgroundImage));
   TextInput* inputPtr = inputField.get();
-  root.add(std::move(inputField));
-  root.add(std::move(volumeSlider));
+  // root.add(std::move(inputField));
+  root.add(std::move(parentRect));
+  // root.add(std::move(volumeSlider));
   // Event Dispatcher
   EventDispatcher eventDispatcher(window);
   bool running = true;

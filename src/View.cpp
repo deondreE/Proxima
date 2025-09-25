@@ -4,6 +4,9 @@ namespace UI {
 
 View& View::z_index(int z) {
   zIndex = z;
+  if (parent) {
+     // This is tricky with unique_ptr and needs a proper way to remove and re-add.
+  }
   return *this;
 }
 
@@ -28,6 +31,26 @@ View& View::size(int w, int h) {
   return *this;
 }
 
+void View::setParent(View* p) {
+  if (parent != p) {
+    parent = p;
+  }
+}
+
+int View::getAbsoluteY() const {
+  if (parent) {
+    return parent->getAbsoluteY() + y;
+  }
+  return y;
+}
+
+int View::getAbsoluteX() const {
+  if (parent) {
+    return parent->getAbsoluteX() + x;
+  }
+  return x;
+}
+
 View& View::pos(int nx, int ny) {
   x = nx;
   y = ny;
@@ -43,12 +66,9 @@ void View::draw(SDL_Renderer* renderer) {
 }
 
 void View::layout(int offsetX, int offsetY) {
-  int absoluteX = x + offsetX;
-  int absoluteY = y + offsetY;
-
   for (const auto& child_ptr : children) {
     if (child_ptr) {
-      child_ptr->layout(absoluteX, absoluteY);
+      child_ptr->layout(getAbsoluteX(), getAbsoluteY());
     }
   }
 }

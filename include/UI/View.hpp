@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <initializer_list>
+#include <stdexcept>
 
 #include "../Core/ProximaEvent.hpp"
 
@@ -35,12 +36,16 @@ class View {
     if (child_ptr) {
       child_ptr->parent = nullptr;
       T& ref = *child_ptr;
+      child_ptr->setParent(this);
       insertChildSorted(std::move(child_ptr)); 
       return ref;
     }
 
     throw std::runtime_error("Attemted to add a null unique child to view.");
   }
+
+  void setParent(View* p);
+  View* getParent() const { return parent; }
 
   View& add(std::initializer_list<std::unique_ptr<View>> newChildren) = delete;
 

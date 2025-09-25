@@ -5,6 +5,10 @@
 #include <array>
 #include <SDL3/SDL.h>
 
+namespace UI {
+    class View;
+}
+
 class EventDispatcher {
 public:
     using Handler = std::function<bool(const ProximaEvent&)>;

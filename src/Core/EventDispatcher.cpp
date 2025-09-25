@@ -4,7 +4,8 @@
 #include <X11/keysym.h>
 #include "Core/ProximaEvent.hpp"
 
-EventDispatcher::EventDispatcher(SDL_Window* win) : w(win) {  
+EventDispatcher::EventDispatcher(SDL_Window* win)
+ : w(win) {  
     SDL_StartTextInput(w);
 }
   
