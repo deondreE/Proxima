@@ -9,6 +9,43 @@ Our goal is to redefine how native applications are built, offering unparalleled
 
 C++ powers most of the world wether we like it or not. We MUST make the expirence of Application development in the language better and more intuitive.
 
+---
+
+## Building
+
+> **All platforms** 
+
+```bash
+git clone <repo_link> --recursive
+```
+
+> **Macos**
+
+Not currently supported
+
+> **Windows**
+
+Not currently supported
+
+> **Arch Linux**
+
+1. Install Dependencies
+```bash
+sudo pacman -Syu
+sudo pacman -S --needed base-devel git cmake clang sdl3 sdl3_ttf
+```
+
+2. Build the project
+```bash
+cmake -S . -B build # for first build only
+cmake --build build
+./build/example_app
+```
+
+
+
+---
+
 ## Vision (Long-term)
 
 Proxima will have language bindings for all popular languages
@@ -17,7 +54,6 @@ Proxima will have language bindings for all popular languages
 - Python
 - Lua
 - Java
-- Javascript
 
 This will allow for the platform to reach as many runtimes as possible and there to be no excuse such as "I don't know C++" to ever exist. 
 
@@ -30,15 +66,12 @@ This initial version focuses on demonstrating fundamental, custom-built capabili
 
 - Direct System Graphics API Interaction:
 	- Proxima directly utilizes the native, low-level graphics APIs on each platform:
-		- iOS/macOS: SDL / Metal / Vulkan
+		- iOS/macOS: Metal
 
-		- Windows: SDL / DirectX / WinSDK
+		- Windows: DirectX
+		- Android: Vulkan
 
-		- Android: SDL / Vulkan
-
-		- Linux: SDL / Vulkan
-
-		- Web: WASM (maybe)
+		- Linux: SDL3
 
 
 - Custom UI Rendering Engine: Proxima implements its own rendering engine for all UI elements. This includes:
