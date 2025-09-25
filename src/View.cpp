@@ -1,6 +1,4 @@
 #include "UI/View.hpp"
-#include <algorithm>
-#include <iostream>
 
 namespace UI {
 

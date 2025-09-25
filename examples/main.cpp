@@ -12,7 +12,7 @@
 #include "UI/TextInput.hpp"
 #include "UI/Rect.hpp"  
 #include "UI/Image.hpp" 
-#include "UI/Line.hpp"  
+#include "UI/Slider.hpp"
 
 #include "Core/EventDispatcher.hpp" 
 
@@ -89,12 +89,14 @@ int main(int argc, char* argv[]) {
       .onClick(on_btn_clicked);
   btn->setColor({255, 255, 255, 255});
 
-  auto line = std::make_unique<Line>();
-  line->setPoints(50, 50, 250, 150)
-        .setColor({0, 255, 0, 255})
-        .setThickness(5);
-  line->size(100, 100); 
-  line->z_index(50);
+  auto volumeSlider = std::make_unique<Slider>(50,400,300, 0.0f, 100.0f, 75.0f);
+  volumeSlider->setStep(5.0f);
+  volumeSlider->setColors({100, 100, 200, 255}, {255, 150, 0, 255});
+  volumeSlider->setDimentions(30, 20, 30);
+  volumeSlider->onValueChanged([](float newValue){
+    std::cout << "Volume changed to: " << newValue << std::endl;
+  });
+  volumeSlider->z_index(10);
 
   auto inputField = std::make_unique<TextInput>();
   inputField->pos(10, 10); 
@@ -127,7 +129,7 @@ int main(int argc, char* argv[]) {
   root.add(std::move(backgroundImage));
   TextInput* inputPtr = inputField.get();
   root.add(std::move(inputField));
-  root.add(std::move(line));
+  root.add(std::move(volumeSlider));
   // Event Dispatcher
   EventDispatcher eventDispatcher(window);
   bool running = true;

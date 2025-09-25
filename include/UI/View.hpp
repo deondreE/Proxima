@@ -18,7 +18,8 @@ class View {
   void insertChildSorted(std::unique_ptr<View> child);
 
  public:
-  int x{0}, y{0}, width{100}, height{30}, zIndex{0};
+  int x{0}, y{0};
+  int width{100}, height{30}, zIndex{0};
 
   std::vector<std::unique_ptr<View>> children;
 
@@ -47,6 +48,9 @@ class View {
   virtual void layout(int offsetX, int offsetY);
 
   virtual bool handleProximaEvent(const ProximaEvent& event);
+
+  int getAbsoluteX() const;
+  int getAbsoluteY() const;
 
   View(const View&) = delete;
   View& operator=(const View&) = delete;
