@@ -12,6 +12,7 @@
 #include "UI/TextInput.hpp"
 #include "UI/Rect.hpp"  
 #include "UI/Image.hpp" 
+#include "UI/Line.hpp"  
 
 #include "Core/EventDispatcher.hpp" 
 
@@ -88,6 +89,13 @@ int main(int argc, char* argv[]) {
       .onClick(on_btn_clicked);
   btn->setColor({255, 255, 255, 255});
 
+  auto line = std::make_unique<Line>();
+  line->setPoints(50, 50, 250, 150)
+        .setColor({0, 255, 0, 255})
+        .setThickness(5);
+  line->size(100, 100); 
+  line->z_index(50);
+
   auto inputField = std::make_unique<TextInput>();
   inputField->pos(10, 10); 
   inputField->size(380, 40); 
@@ -119,6 +127,7 @@ int main(int argc, char* argv[]) {
   root.add(std::move(backgroundImage));
   TextInput* inputPtr = inputField.get();
   root.add(std::move(inputField));
+  root.add(std::move(line));
   // Event Dispatcher
   EventDispatcher eventDispatcher(window);
   bool running = true;

@@ -8,10 +8,6 @@ Before worrying about other languages, ensure your C++ core is stable and well-t
 
 	- Basic Shapes: Ensure drawing rectangles, circles (if planned), and lines is efficient and correct.
 
-	- Image Handling: Loading and rendering static images.
-
-
-
 - Fundamental Widgets:
 
 	- Text Input: Basic keyboard input, cursor, selection, scrolling.
@@ -20,21 +16,12 @@ Before worrying about other languages, ensure your C++ core is stable and well-t
 
 
 - Event System:
-  - React like event control, allows the user to control when and what the event can do.
-  - Translate SDL events rather then RAW X11, package SDL with this.
-
-	- Input Handling: Keyboard (keypress, keyup), mouse (click, hover, mouse down/up, scroll).
+  - React like event control, allows the user to
 
 	- Event Propagation: How events travel through the UI hierarchy (e.g., from child to parent, or deepest child first).
 
-	- Focus Management: Which widget receives keyboard input.
-
-
 - Resource Management:
 	- Fonts, Textures: Proper loading, caching, and cleanup.
-
-	- Memory Safety: Minimize raw pointers, use smart pointers where appropriate (as you're doing with std::unique_ptr in View::children).
-
 
 2. Clear and Stable C-Callable API (FFI Layer):
 

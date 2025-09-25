@@ -30,6 +30,7 @@ add_library(proxima_ui
   src/TextInput.cpp
   src/Rect.cpp
   src/Image.cpp
+  src/Line.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC
