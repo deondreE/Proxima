@@ -32,6 +32,7 @@ add_library(proxima_ui
   src/Image.cpp
   src/Line.cpp
   src/Slider.cpp
+  src/Window.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC
