@@ -9,7 +9,7 @@ set(PROXIMA_UI_PLATFORM_SOURCES "")
 set(PROXIMA_UI_PLATFORM_LIBS "")
 set(PROXIMA_UI_PLATFORM_INCLUDE_DIRS "")
 
-if (APPLE) 
+if (APPLE)
   message(STATUS "Configuring for macOS (Metal Rendering)")
 
   find_library(METAL_FRAMEWORK Metal REQUIRED)
@@ -23,7 +23,7 @@ if (APPLE)
   )
 
   set(PROXIMA_USE_SDL FALSE)
-elseif(UNIX) 
+elseif(UNIX)
   message(STATUS "Configure for linux")
   find_package(SDL3 CONFIG REQUIRED)
   if (NOT TARGET SDL3::SDL3)
@@ -50,7 +50,7 @@ elseif(WIN32)
   find_library(DXGI_Library Names dxgi
       PATHS ENV DXSDK_Dir/Lib/x64 ENV DXSDK/Lib/x86
       NO_CMAKE_FIND_ROOT_PATH)
-  
+
   if (NOT DIRECT_X_INCLUDE_DIR OR NOT D3D11_Library OR NOT DXGI_Library)
     message(FATAL_ERROR "DirectX 11 SDK not found. Please make it work.")
   endif()
@@ -61,7 +61,7 @@ elseif(WIN32)
   set(PROXIMA_USE_SDL FALSE)
   set(PROXIMA_GUI_SUBSYSTEM "WIN32")
 
-else() 
+else()
   message(FATAL_ERROR "Windows Sucks")
 endif()
 
@@ -85,6 +85,8 @@ add_library(proxima_ui
   src/Line.cpp
   src/Slider.cpp
   src/Window.cpp
+  src/Core/Debug.cpp
+  src/Core/DebugManager.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC
@@ -108,17 +110,17 @@ endif()
 
 add_executable(example_app examples/main.cpp)
 
-target_link_libraries(example_app PRIVATE 
-    yaml-cpp 
+target_link_libraries(example_app PRIVATE
+    yaml-cpp
     proxima_ui
     SDL3::SDL3
     SDL3_ttf::SDL3_ttf
     SDL3_image::SDL3_image
 )
 
-if (APPLE) 
+if (APPLE)
   set_target_properties(exmaple_app PROPERTIES MACOSX_BUNDLE TRUE)
   set_target_properties(example_app APPEND_STRING PROPERTY COMPILE_OPTIONS "-xobjective-c++")
-elseif(WIN32) 
+elseif(WIN32)
   set_target_properties(example_app PROPERTIES WIN32_SUBSYSTEM TRUE)
 endif()
