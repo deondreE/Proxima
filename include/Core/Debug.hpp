@@ -1,14 +1,8 @@
 #pragma once
-#include "View.hpp"
+#include "UI/View.hpp"
+#include "UI/Window.hpp"
 
-#include <functional>
 #include <memory>
-
-namespace UI {
-class Window;
-class View;
-class WindowConfig;
-}  // namespace UI
 
 namespace Core {
 class DebugManager;

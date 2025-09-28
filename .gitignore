@@ -16,6 +16,8 @@
 
 # Debugger Files
 *.pdb
+*.cache
+*.idea
 
 # Compiled Dynamic libraries
 *.so
