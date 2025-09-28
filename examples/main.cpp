@@ -1,10 +1,7 @@
 
 #include "Proxima.hpp"
 using namespace UI;
-
-void on_btn_clicked() {
-  std::cout << "Button Clicked!\n";
-}
+#include <format>
 
 ConfigManager configManager;
 
@@ -35,18 +32,21 @@ int main(int argc, char* argv[]) {
         .setFont("./examples/config/fonts/Delius-Regular.ttf", 28)
         .setColor({50, 50, 50, 255});
     auto backgroundImage = std::make_unique<Image>();
-    backgroundImage->pos(0, 0).size(appConfig.initial_width,
-                                    appConfig.initial_height);
-    backgroundImage->z_index(-100);
-    backgroundImage->setImagePath("./examples/assets/test-app.png");
+    backgroundImage->pos(0, 0)
+        .size(appConfig.initial_width, appConfig.initial_height)
+        .z_index(-100)
+        .setImagePath("./examples/assets/test-app.png");
 
     auto btn = std::make_unique<Button>();
     btn->size(120, 40)
         .pos(10, 60)
         .setFont("./examples/config/fonts/Delius-Regular.ttf", 36)
         .text("Press this button!")
-        .onClick(on_btn_clicked);
-    btn->setColor({255, 255, 255, 255});
+        .onClick([](Button& btn) {
+          std::cout << "Button Clicked" << std::endl;
+          btn.text("Logged In");
+        })
+        .setColor({255, 255, 255, 255});
 
     auto volumeSlider =
         std::make_unique<Slider>(50, 400, 300, 0.0f, 100.0f, 75.0f);
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::cout << "Applicatio exited succesfully.";
+  std::cout << "Application exited succesfully.";
 
   return 0;
 }

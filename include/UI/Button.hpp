@@ -9,7 +9,7 @@ namespace UI {
 
 class Button : public View {
   std::string label;
-  std::function<void()> onClickHandler;
+  std::function<void(Button&)> onClickHandler;
   TTF_Font* font;
   std::string font_path;
   int font_size;
@@ -24,8 +24,11 @@ class Button : public View {
  public:
   Button(const std::string& text = "",
          const std::string& initial_font_path = "", int initial_font_size = 24,
-         SDL_Color defaultColor = {0, 0, 0, 255});
+         SDL_Color defaultTextColor = {0, 0, 0, 255});
   ~Button() override;
+
+  static Button create(const std::string& text = "");
+
 
   Button& size(int w, int h) {
     View::size(w, h);
@@ -36,7 +39,7 @@ class Button : public View {
     return *this;
   }
   Button& text(const std::string& str);
-  Button& onClick(std::function<void()> cb);
+  Button& onClick(std::function<void(Button&)> cb);
   Button& setFont(const std::string& fontPath, int size);
   Button& setColor(SDL_Color newColor);
 

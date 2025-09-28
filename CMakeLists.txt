@@ -79,6 +79,7 @@ add_library(proxima_ui
   src/ConfigManager.cpp
   src/Text.cpp
   src/Core/EventDispatcher.cpp
+  src/GridLayout.cpp
   src/TextInput.cpp
   src/Rect.cpp
   src/Image.cpp

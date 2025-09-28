@@ -18,29 +18,34 @@ void Button::reopenFont() {
   texture_needs_update = true;
 }
 
-Button::Button(const std::string& text_label,
-               const std::string& initial_font_path, int initial_font_size,
-               SDL_Color defaultColor)
-    : label(text_label),
+Button::Button(const std::string& text, const std::string& initial_font_path,
+               int initial_font_size, SDL_Color defaultTextColor)
+    : label(text),
+      onClickHandler([](Button&) {}),  // Default empty handler
       font(nullptr),
       font_path(initial_font_path),
       font_size(initial_font_size),
-      text_color(defaultColor),
+      text_color(defaultTextColor),
       label_texture(nullptr),
       texture_needs_update(true),
       is_pressed(false) {
-  reopenFont();  // Open font initially
+  if (!font_path.empty()) {
+    reopenFont();
+  } else {
+  }
 }
 
 Button::~Button() {
   if (label_texture) {
     SDL_DestroyTexture(label_texture);
-    label_texture = nullptr;
   }
-  if (font) {  // Close font when Button object is destroyed
+  if (font) {
     TTF_CloseFont(font);
-    font = nullptr;
   }
+}
+
+Button Button::create(const std::string& text) {
+  return Button(text);
 }
 
 void Button::updateLabelTexture(SDL_Renderer* renderer) {
@@ -87,11 +92,12 @@ void Button::updateLabelTexture(SDL_Renderer* renderer) {
 
 Button& Button::text(const std::string& str) {
   label = str;
+  texture_needs_update = true;
   return *this;
 }
 
-Button& Button::onClick(std::function<void()> cb) {
-  onClickHandler = cb;
+Button& Button::onClick(std::function<void(Button&)> cb) {
+  onClickHandler = std::move(cb);
   return *this;
 }
 
@@ -115,7 +121,7 @@ Button& Button::setColor(SDL_Color newColor) {
 
 void Button::click() {
   if (onClickHandler) {
-    onClickHandler();
+    onClickHandler(*this);
   }
 }
 
@@ -158,32 +164,32 @@ bool Button::handleProximaEvent(const ProximaEvent& event) {
   bool consumed = false;
   switch (event.type) {
     case MOUSE_PRESS:
-       if (mouseX >= absX && mouseX < (absX + width) &&
-                mouseY >= absY && mouseY < (absY + height)) {
-                is_pressed = true; // Mark button as pressed
-                consumed = true; // Consume the event
-            }
-        break;
+      if (mouseX >= absX && mouseX < (absX + width) && mouseY >= absY &&
+          mouseY < (absY + height)) {
+        is_pressed = true;  // Mark button as pressed
+        consumed = true;    // Consume the event
+      }
+      break;
     case MOUSE_RELEASE:
-            if (is_pressed) {
-              is_pressed = false;
+      if (is_pressed) {
+        is_pressed = false;
 
-              // Check if mouse is still within bounds on release
-              if (mouseX >= absX && mouseX < (absX + width) &&
-                  mouseY >= absY && mouseY < (absY + height)) {
-                  // Trigger the click handler
-                  if (onClickHandler) {
-                      onClickHandler();
-                  }
-                  consumed = true; // Consume the event
-              }
-            }
-            break;
+        // Check if mouse is still within bounds on release
+        if (mouseX >= absX && mouseX < (absX + width) && mouseY >= absY &&
+            mouseY < (absY + height)) {
+          // Trigger the click handler
+          if (onClickHandler) {
+            click();
+          }
+          consumed = true;  // Consume the event
+        }
+      }
+      break;
     case WINDOW_RESIZE:
-            texture_needs_update = true;
-            break;
-    default: 
-        break;
+      texture_needs_update = true;
+      break;
+    default:
+      break;
   }
 
   return View::handleProximaEvent(event);
