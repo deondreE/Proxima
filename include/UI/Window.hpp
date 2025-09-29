@@ -36,6 +36,12 @@ private:
 
     bool _running = false;
 
+    TTF_Font* _titleBarFont = nullptr;
+    int _titleBarHeight = 30;
+    SDL_Color _titleBarBgColor = {50,50,50,255};
+    SDL_Color _titleBarTextColor = {255, 255, 255, 255};
+
+
     bool initializeSDLSubsystems();
 
     void cleanupSDLSubsystems();

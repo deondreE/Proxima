@@ -41,6 +41,12 @@ Window::Window(const WindowConfig& config)
   }
   SDL_SetRenderDrawBlendMode(_sdlRenderer.get(), SDL_BLENDMODE_BLEND);
 
+  _titleBarFont =
+      TTF_OpenFont("./examples/config/fonts/Delius-Regular.ttf", 18);
+  if (_titleBarFont) {
+    SDL_Log("Failed to load font for window title bar.");
+  }
+
   _rootView = std::make_unique<View>();
   _rootView->size(_config.initialWidth, _config.initialHeight);
   _eventDispatcher = std::make_unique<EventDispatcher>(_sdlWindow.get());
@@ -53,6 +59,9 @@ Window::Window(const WindowConfig& config)
 }
 
 Window::~Window() {
+  if (_titleBarFont) {
+    TTF_CloseFont(_titleBarFont);
+  }
   cleanupSDLSubsystems();
 }
 
@@ -142,7 +151,34 @@ void Window::run() {
     SDL_SetRenderDrawColor(_sdlRenderer.get(), 100, 149, 237, 255);
     SDL_RenderClear(_sdlRenderer.get());
 
-    _rootView->layout(0, 0);
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(_sdlWindow.get(), &windowWidth, &windowHeight);
+
+    SDL_FRect titleBarRect = {0, 0, (float)windowWidth, (float)_titleBarHeight};
+    SDL_SetRenderDrawColor(_sdlRenderer.get(), _titleBarBgColor.r,
+                           _titleBarBgColor.g, _titleBarBgColor.b,
+                           _titleBarBgColor.a);
+    SDL_RenderFillRect(_sdlRenderer.get(), &titleBarRect);
+
+    if (_titleBarFont && !_config.title.empty()) {
+      SDL_Surface* textSurface = TTF_RenderText_Blended(_titleBarFont, _config.title.c_str(), _config.title.length(), _titleBarTextColor);
+      if (textSurface) {
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(_sdlRenderer.get(), textSurface);
+        if (textTexture) {
+          SDL_FRect textRect;
+          textRect.x = 5;
+          textRect.y = (_titleBarHeight - textSurface->h) / 2.0f;
+          textRect.w = textSurface->w;
+          textRect.h = textSurface->h;
+
+          SDL_RenderTexture(_sdlRenderer.get(), textTexture, nullptr, &textRect);
+          SDL_DestroyTexture(textTexture);
+        }
+        SDL_DestroySurface(textSurface);
+      }
+    }
+
+    _rootView->layout(0, _titleBarHeight);
     _rootView->draw(_sdlRenderer.get());
 
     SDL_RenderPresent(_sdlRenderer.get());
