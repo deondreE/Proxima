@@ -1,0 +1,6 @@
+# Application settings
+application:
+  window_title: "Proxima MVP"
+  initial_width: 640
+  initial_height: 480
+  initial_font_path: "./fonts/Delius-Regular.ttf"
