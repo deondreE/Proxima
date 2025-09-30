@@ -31,6 +31,8 @@ elseif(UNIX)
   endif()
   list(APPEND PROXIMA_UI_PLATFORM_LIBS SDL3::SDL3)
 
+  add_subdirectory(external/sdl_image)
+
   find_package(SDL3_ttf CONFIG REQUIRED)
   if (NOT TARGET SDL3_ttf::SDL3_ttf)
     message(FATAL_ERROR "SDL3_ttf target not found. Ensure SDL3_ttf is installed or check find_package paths.")
@@ -65,12 +67,9 @@ else()
   message(FATAL_ERROR "Windows Sucks")
 endif()
 
-
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(external/yaml-cpp)
-add_subdirectory(external/sdl_image)
 
 add_library(proxima_ui
   src/View.cpp
@@ -108,16 +107,19 @@ if (PROXIMA_USE_SDL)
   )
 endif()
 
+if (PROXIMA_USE_SDL)
+  add_executable(example_app examples/unix/main.cpp)
+  target_link_libraries(example_app PRIVATE
+      yaml-cpp
+      proxima_ui
+      SDL3::SDL3
+      SDL3_ttf::SDL3_ttf
+      SDL3_image::SDL3_image
+  )
 
-add_executable(example_app examples/main.cpp)
-
-target_link_libraries(example_app PRIVATE
-    yaml-cpp
-    proxima_ui
-    SDL3::SDL3
-    SDL3_ttf::SDL3_ttf
-    SDL3_image::SDL3_image
-)
+elseif(WIN32)
+  add_executable(example_app examples/windows/main.cpp)
+endif()
 
 if (APPLE)
   set_target_properties(exmaple_app PROPERTIES MACOSX_BUNDLE TRUE)
