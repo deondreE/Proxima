@@ -1,4 +1,5 @@
 #include "UI/W_Window.hpp"
+#include "Core/WinEventDispatcher.hpp" 
 
 namespace UI {
 	static W_Window* s_currentCreatingWindow = nullptr;
@@ -58,21 +59,21 @@ namespace UI {
         s_currentCreatingWindow = nullptr;
 
         if (!hWnd) {
-          std::cerr << "ERROR: failed to createe W_Window window brokey dummy "
-                       "fix it!";
           unregisterWindowClass();
           return false;
         }
+        _window.reset(hWnd);
 
-        // _window.reset();
         HDC hdc = GetDC(hWnd);
         HDC compatibleHdc = CreateCompatibleDC(hdc);
         if (compatibleHdc) {
           // _renderer.reset();
         } else {
           std::cerr << "WARNING: Failed to create compatible HDC; Other "
-                       "words.... Broken Fix it!";
+                      "words.... Broken Fix it!";
         }
+
+        _eventDispatcher = std::make_unique<Core::WinEventDispatcher>();
 
         ShowWindow(hWnd, SW_SHOW);
         UpdateWindow(hWnd);
@@ -90,11 +91,9 @@ namespace UI {
         MSG msg = {};
         _running = true;
 
+
         while (_running) {
-          while (GetMessage(&msg, nullptr, 0, 0)) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-          }
+          pumpEvents();
         }
         
 
@@ -112,36 +111,19 @@ namespace UI {
     }
 
     LRESULT CALLBACK W_Window::StaticWndProc(HWND hWnd, UINT message,
-                                             WPARAM wParam, LPARAM lParam) {
-      W_Window* pThis = nullptr;
-      if (message == WM_NCCREATE) {
-        LPCREATESTRUCT pCreate = reinterpret_cast<LPCREATESTRUCT>(lParam);
+                                        WPARAM wParam, LPARAM lParam) {
+    W_Window* pThis;
+    if (message == WM_NCCREATE) {
+        auto pCreate = reinterpret_cast<LPCREATESTRUCT>(lParam);
         pThis = reinterpret_cast<W_Window*>(pCreate->lpCreateParams);
-
-        if (pThis) {
-          LPCREATESTRUCT pCreate = reinterpret_cast<LPCREATESTRUCT>(lParam);
-          pThis = reinterpret_cast<W_Window*>(pCreate->lpCreateParams);
-
-          if (pThis) {
-            SetWindowLongPtr(hWnd, GWLP_USERDATA,
-                             reinterpret_cast<LONG_PTR>(pThis));
-          } else if (s_currentCreatingWindow) {
-            pThis = s_currentCreatingWindow;
-            SetWindowLongPtr(hWnd, GWLP_USERDATA,
-                             reinterpret_cast<LONG_PTR>(pThis));
-          }
-        } else {
-          pThis = reinterpret_cast<W_Window*>(
-              GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        }
-
-        if (pThis) {
-          return pThis->WndProc(hWnd, message, wParam, lParam);
-        }
-      }
-
-      return DefWindowProc(hWnd, message, wParam, lParam);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pThis);
     }
+    pThis = reinterpret_cast<W_Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    if (pThis) {
+        return pThis->WndProc(hWnd, message, wParam, lParam);
+    }
+    return DefWindowProc(hWnd, message, wParam, lParam);
+}
 
     LRESULT W_Window::WndProc(HWND hWnd, UINT message, WPARAM wParam,
         LPARAM lParam) {
@@ -164,7 +146,7 @@ namespace UI {
           SetTextColor(hdc, RGB(255, 255, 0));
           SetBkMode(hdc, TRANSPARENT);
           DrawText(hdc, text.c_str(), -1, &clientRect,
-                   DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+                  DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 
           EndPaint(hWnd, &ps);
           return 0;
@@ -177,7 +159,7 @@ namespace UI {
           return 0;
           break;
         case WM_DESTROY:
-          std::cout << "DEBUG: WM_DESTROY received for " << hWnd << std::endl;
+          PostQuitMessage(0);
           return 0;
           break;
         default:

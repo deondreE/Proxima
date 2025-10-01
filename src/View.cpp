@@ -86,7 +86,7 @@ bool View::handleProximaEvent(const ProximaEvent& event) {
     case TEXT_INPUT:
       break;
     case MOUSE_PRESS:
-         if (event.x >= x && event.x < (x + width) &&
+        if (event.x >= x && event.x < (x + width) &&
                 event.y >= y && event.y < (y + height)) {
                   return true;
                 }

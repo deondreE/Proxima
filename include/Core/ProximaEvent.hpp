@@ -15,6 +15,7 @@ enum ProximaEventType {
   MOUSE_MOTION,
   WINDOW_RESIZE,
   TEXT_INPUT,
+  UNKNOWN_EVENT,
 };
 
 struct ProximaEvent {

@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <functional>
+#include "../Platform.hpp"
 
 struct WinWindowDeleter {
   void operator()(HWND__* wnd) const {
@@ -27,7 +28,7 @@ struct WinRendererDeleter {
 
 namespace UI {
 
-class W_Window : public IWindow<HWND__, WinWindowDeleter, HDC__, WinRendererDeleter> {
+class PEXPORT W_Window : public IWindow<HWND__, WinWindowDeleter, HDC__, WinRendererDeleter> {
 public:	
 	static constexpr const char* CLASS_NAME = "W_WindowClass";
 
@@ -35,7 +36,7 @@ public:
     ~W_Window();
 
 	void run() override;
-    void stop() override; 
+	void stop() override; 
 
 	bool initializePlatformSubsystems() override;
     void cleanupPlatformSubsystems() override;

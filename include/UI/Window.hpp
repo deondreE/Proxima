@@ -16,7 +16,7 @@
 #include <utility>
 
 #include "Renderer.hpp"
-// #include "Core/EventDispatcher.hpp"
+#include "Core/IEventDispatcher.hpp"
 #include "Core/ProximaEvent.hpp"
 #include "View.hpp"
 
@@ -54,6 +54,7 @@ template <
     typename RendererDelterType>
 class IWindow {
  public:
+  std::unique_ptr<IEventDispatcher> _eventDispatcher;
   std::unique_ptr<WindowHandleType, WindowDeleterType> _window;
   std::unique_ptr<RendererHandleType, RendererDelterType> _renderer;
   std::unique_ptr<View> _rootView;
@@ -62,8 +63,8 @@ class IWindow {
   
   IWindow(WindowHandleType* window, WindowDeleterType window_deleter,
           RendererHandleType* renderer, RendererDelterType renderer_deleter,
-                   View* root_view_ptr,
-                 const WindowConfig& config, int titleBarHeight)
+                  View* root_view_ptr,
+                  const WindowConfig& config, int titleBarHeight)
       : _window(window, std::move(window_deleter)),
         _renderer(renderer, std::move(renderer_deleter)),
         _rootView(root_view_ptr),
@@ -73,6 +74,13 @@ class IWindow {
   
   virtual void run() = 0;
   virtual void stop() = 0;
+
+  void pumpEvents() { 
+      if (_eventDispatcher) {
+        _eventDispatcher->pollAndTranslate();
+        _eventDispatcher->dispatch();
+      }
+  }
 
   virtual bool initializePlatformSubsystems() = 0;
   virtual void cleanupPlatformSubsystems() = 0;
@@ -87,54 +95,54 @@ class IWindow {
   }
 
   #pragma region Callbacks
-  // template <typename Callback>
-  // void onQuit(Callback&& cb) {
-  //   if (_eventDispatcher) {
-  //     _eventDispatcher->onQuit(std::forward<Callback>(cb));
-  //   }
-  // }
+  template <typename Callback>
+  void onQuit(Callback&& cb) {
+    if (_eventDispatcher) {
+      _eventDispatcher->onQuit(std::forward<Callback>(cb));
+    }
+  }
 
-  // template <typename Callback>
-  // void onKeyPress(Callback&& cb) {
-  //   if (_eventDispatcher) {
-  //     _eventDispatcher->onKeyPress(std::forward<Callback>(cb));
-  //   }
-  // }
+  template <typename Callback>
+  void onKeyPress(Callback&& cb) {
+    if (_eventDispatcher) {
+      _eventDispatcher->onKeyPress(std::forward<Callback>(cb));
+    }
+  }
 
-  // template <typename Callback>
-  // void onKeyRelease(Callback&& cb) {
-  //   if (_eventDispatcher) {
-  //     _eventDispatcher->onKeyRelease(std::forward<Callback>(cb));
-  //   }
-  // }
+  template <typename Callback>
+  void onKeyRelease(Callback&& cb) {
+    if (_eventDispatcher) {
+      _eventDispatcher->onKeyRelease(std::forward<Callback>(cb));
+    }
+  }
 
-  // template <typename Callback>
-  // void onTextInput(Callback&& cb) {
-  //   if (_eventDispatcher) {
-  //     _eventDispatcher->onTextInput(std::forward<Callback>(cb));
-  //   }
-  // }
+  template <typename Callback>
+  void onTextInput(Callback&& cb) {
+    if (_eventDispatcher) {
+      _eventDispatcher->onTextInput(std::forward<Callback>(cb));
+    }
+  }
 
-  // template <typename Callback>
-  // void onMousePress(Callback&& cb) {
-  //   if (_eventDispatcher) {
-  //     _eventDispatcher->onMousePress(std::forward<Callback>(cb));
-  //   }
-  // }
+  template <typename Callback>
+  void onMousePress(Callback&& cb) {
+    if (_eventDispatcher) {
+      _eventDispatcher->onMousePress(std::forward<Callback>(cb));
+    }
+  }
 
-  // template <typename Callback>
-  // void onMouseRelease(Callback&& cb) {
-  //   if (_eventDispatcher) {
-  //     _eventDispatcher->onMouseRelease(std::forward<Callback>(cb));
-  //   }
-  // }
+  template <typename Callback>
+  void onMouseRelease(Callback&& cb) {
+    if (_eventDispatcher) {
+      _eventDispatcher->onMouseRelease(std::forward<Callback>(cb));
+    }
+  }
 
-  // template <typename Callback>
-  // void onMouseMotion(Callback&& cb) {
-  //   if (_eventDispatcher) {
-  //     _eventDispatcher->onMouseMotion(std::forward<Callback>(cb));
-  //   }
-  // }
+  template <typename Callback>
+  void onMouseMotion(Callback&& cb) {
+    if (_eventDispatcher) {
+      _eventDispatcher->onMouseMotion(std::forward<Callback>(cb));
+    }
+  }
   #pragma endregion
 
 protected:

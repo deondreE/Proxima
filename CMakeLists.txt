@@ -104,7 +104,7 @@ if (PROXIMA_USE_SDL)
 
 elseif(WIN32)
   add_executable(example_app WIN32 examples/windows/main.cpp)
-  target_compile_definitions(proxima_ui PRIVATE PEXPORT)
+  target_compile_definitions(proxima_ui PRIVATE EXPORT)
   target_link_libraries(example_app PRIVATE proxima_ui)
 endif()
 
