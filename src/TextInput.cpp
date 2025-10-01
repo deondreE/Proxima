@@ -83,11 +83,14 @@ void TextInput::draw(const ViewContext& context) {
       prefix_text = "";
     }
     
+    auto size = textRenderer->measureText(textBuffer, font);
     int drawTextY = y + (height - font_size) / 2.0;
+    cursorDrawX = size.first;
 
     textRenderer->drawText(textBuffer, font, textColor, width, drawTextY, x, y, false);
 
-    // renderer->fillRect(x + 3.0 + cursorDrawX, y + (height - font_size) / 2.0, 2.0, font_size);
+    renderer->setDrawColor(cursorColor);
+    renderer->fillRect(x + 3.0 + cursorDrawX, y + (height - font_size) / 2.0, 2.0, font_size);
   }
 
   View::draw(context);
