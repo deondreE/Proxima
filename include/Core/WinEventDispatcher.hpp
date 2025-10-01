@@ -44,13 +44,26 @@ namespace Core {
           e.type = UNKNOWN_EVENT;
 
           switch (msg.message) {
-            case WM_KEYDOWN: 
+            case WM_KEYDOWN: {
               e.type = KEY_PRESS; 
-              e.keyCode = (int)msg.wParam;
+              // TODO: Add all other keys...............,.,,,,,,,,,
+              switch (msg.wParam) {
+                case VK_BACK: e.keyCode = ProximaKeyCode::KEY_BACKSPACE; break;
+                case VK_RETURN: e.keyCode = ProximaKeyCode::KEY_ENTER; break;
+                case VK_ESCAPE: e.keyCode = ProximaKeyCode::KEY_ESCAPE; break;
+                case VK_TAB: e.keyCode = ProximaKeyCode::KEY_TAB; break;
+                case VK_SPACE: e.keyCode = ProximaKeyCode::KEY_SPACE; break;
+              }
+              e.text = (wchar_t)'\0';
               break;
+            }
+            case WM_CHAR: {
+              e.type = TEXT_INPUT;
+              e.text = (wchar_t)msg.wParam;
+              break;
+            }
             case WM_KEYUP:
               e.type = KEY_RELEASE;
-              e.keyCode = (int)msg.wParam;
               break;
             case WM_LBUTTONDOWN:
               e.type = MOUSE_PRESS;

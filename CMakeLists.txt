@@ -72,6 +72,9 @@ add_library(proxima_ui SHARED
   src/Line.cpp
   src/Slider.cpp
   src/Image.cpp
+  src/GridLayout.cpp
+  src/StackLayout.cpp
+  src/TextInput.cpp
 )
 elseif(UNIX)
 add_subdirectory(external/yaml-cpp)
@@ -84,6 +87,8 @@ add_library(proxima_ui SHARED
   src/Line.cpp
   src/Slider.cpp
   src/Image.cpp
+  src/GridLayout.cpp
+  src/StackLayout.cpp
 )
 endif()
 

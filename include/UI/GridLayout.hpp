@@ -67,12 +67,9 @@ class GridLayout : public View {
 
   void remove(int row, int col);
 
-  void draw(SDL_Renderer* renderer) override;
+  void draw(const ViewContext& context) override;
   void layout(int offsetX, int offsetY) override;
   bool handleProximaEvent(const ProximaEvent& event) override;
-
-  // std::string getDebugName() const override { return "Grid Layout"; }
-  // std::vector<DebugProperty> getDebugProperties() const override;
 };
 
 }  // Namespace UI

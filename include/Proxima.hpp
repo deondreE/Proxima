@@ -11,6 +11,8 @@
 	#include "UI/Line.hpp"
 	#include "UI/Slider.hpp"
 	#include "UI/Image.hpp"	
+	#include "UI/TextInput.hpp"
+	#include "UI/StackLayout.hpp"
 #elif defined(__linux__)
 	#include <SDL3/SDL.h>
 	#include <SDL3_image/SDL_image.h>
@@ -25,13 +27,8 @@
 
 	#include "UI/ConfigManager.hpp"
 	#include "UI/Image.hpp"
-
-
 	#include "UI/Slider.hpp"  
 	#include "UI/View.hpp"
-	#include "UI/TextInput.hpp"
-
-	#include "UI/StackLayout.hpp"
 	#include "UI/Window.hpp"
 #endif
 

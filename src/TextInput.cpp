@@ -1,7 +1,4 @@
 #include "UI/TextInput.hpp"
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_keycode.h>
-#include <SDL3_ttf/SDL_ttf.h>
 #include <algorithm>
 #include <iostream>
 
@@ -10,63 +7,21 @@ TextInput::TextInput() {
   texture_needs_update = true;
 }
 
-TextInput::~TextInput() {
-  if (text_texture) {
-    SDL_DestroyTexture(text_texture);
-    text_texture = nullptr;
-  }
+TextInput::~TextInput() {}
 
-  if (font) {
-    TTF_CloseFont(font);
-    font = nullptr;
-  }
-}
+void TextInput::setContext(const ViewContext& context) {
+  View::setContext(context);
 
-void TextInput::updateTexture(SDL_Renderer* renderer) {
-  if (!texture_needs_update || !font || textBuffer.empty()) {
-    return;
-  }
-
-  if (text_texture) {
-    SDL_DestroyTexture(text_texture);
-    text_texture = nullptr;
-  }
-
-  SDL_Surface* surface = TTF_RenderText_Blended(font, textBuffer.c_str(),
-                                                textBuffer.length(), textColor);
-
-  if (!surface) {
-    std::cerr << "Text::updateTexture:: Failed to render text surface: "
-              << std::endl;
-    return;
-  }
-
-  text_texture = SDL_CreateTextureFromSurface(renderer, surface);
-  if (!text_texture) {
-    std::cerr << "Failed to create text texture: " << SDL_GetError()
-              << std::endl;
-  }
-
-  SDL_DestroySurface(surface);
-  texture_needs_update = false;
-}
-
-bool TextInput::reopenFont(SDL_Renderer*  renderer) {
-  if (font) {
-    TTF_CloseFont(font);
-    font = nullptr;
-  }
-
-  if (!font_path.empty())  {
-    font = TTF_OpenFont(font_path.c_str(), font_size);
+  if (!font && context.renderer) {
+    font = _context.renderer->getTextRenderer()->loadFont(font_path, font_size);
     if (!font) {
-      std::cerr << "Broky" << std::endl;
-    } else {
-      return true;
+      std::cerr << "ERROR: Failed to load font '" << font_path << "' for Text object (content: '" << textBuffer << "'). Falling back to Arial.\n";
+      font = _context.renderer->getTextRenderer()->loadFont("Arial", font_size);
+      if (!font) {
+            std::cerr << "CRITICAL ERROR: Failed to load fallback 'Arial' font for Text object.\n";
+      }
     }
   }
-  
-  return false;
 }
 
 TextInput& TextInput::text(const std::string& str) {
@@ -84,48 +39,30 @@ TextInput& TextInput::setFont(const std::string& fontPath, int size) {
   return *this;
 }
 
-TextInput& TextInput::setColor(SDL_Color clr) {
+TextInput& TextInput::setColor(const Color& clr) {
   textColor = clr;
   return *this;
 }
 
-TextInput& TextInput::setCursorColor(SDL_Color clr) {
+TextInput& TextInput::setCursorColor(const Color& clr) {
   cursorColor = clr;
   return *this;
 }
 
-TextInput& TextInput::setBackground(SDL_Color clr) {
+TextInput& TextInput::setBackground(const Color& clr) {
   backgroundColor = clr;
   return *this;
 }
 
-void TextInput::draw(SDL_Renderer* renderer) {
-  if (!font) {
-    reopenFont(renderer);
-    std::cerr << "TextInput: Font not set, cannot render." << std::endl;
-    return;
-  }
-
+void TextInput::draw(const ViewContext& context) {
   // bg
-  SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.b,
-                         backgroundColor.g, backgroundColor.a);
-  SDL_FRect bgRect = {(float)x, (float)y, (float)width, (float)height};
-  SDL_RenderFillRect(renderer, &bgRect);
+  UI::Renderer* renderer = context.renderer;
+  auto textRenderer = context.renderer->getTextRenderer();
 
-  if (texture_needs_update) {
-    updateTexture(renderer);
-  }
-  if (text_texture) {
-    float tex_w, tex_h;
-    SDL_GetTextureSize(text_texture, &tex_w, &tex_h);
-    SDL_FRect dest_rect = {(float)x, (float)y, tex_w, tex_h};
-    if (dest_rect.w > width) {
-      dest_rect.w = width;
-    }
-    SDL_RenderTexture(renderer, text_texture, NULL, &dest_rect);
-  }
+  renderer->setDrawColor(backgroundColor);
+  renderer->fillRect(x, y, width, height);
 
-  if (isFocused && cursorVisible) {
+  if (isFocused) {
     int cursorDrawX = 0;
     int byte_index_at_cursor = 0;
     std::string prefix_text;
@@ -145,25 +82,15 @@ void TextInput::draw(SDL_Renderer* renderer) {
     } else {
       prefix_text = "";
     }
+    
+    int drawTextY = y + (height - font_size) / 2.0;
 
-    int mWidth;
-    size_t length;
-    if (TTF_MeasureString(font, prefix_text.c_str(), prefix_text.length(), width, &mWidth, &length)) {
-      cursorDrawX = mWidth;
-    } else {
-      std::cerr << "Mesure erorr brokey" << std::endl;
-    }
+    textRenderer->drawText(textBuffer, font, textColor, width, drawTextY, x, y, false);
 
-    SDL_SetRenderDrawColor(renderer, cursorColor.r, cursorColor.g,
-                           cursorColor.b, cursorColor.a);
-    SDL_FRect cursorRect = {(float)x + 3.0f + cursorDrawX, 
-                            (float)y + (height - font_size) / 2.0f,
-                             2.0f,
-                            (float)font_size};  // Simple cursor line
-    SDL_RenderFillRect(renderer, &cursorRect);
+    // renderer->fillRect(x + 3.0 + cursorDrawX, y + (height - font_size) / 2.0, 2.0, font_size);
   }
 
-  View::draw(renderer);
+  View::draw(context);
 }
 
 void TextInput::requestRedraw() {
@@ -190,33 +117,14 @@ bool TextInput::handleProximaEvent(const ProximaEvent& event) {
         }
       }
       break;
-    case KEY_PRESS:
+    case KEY_PRESS: {
       if (isFocused) {
-        switch (event.keyCode) {
-          case SDLK_BACKSPACE:
-            deleteCharacter();
-            dirty = true;
-            consumed = true;
-            break;
-          case SDLK_LEFT:
-            moveCursor(-1);
-            consumed = true;
-            break;
-          case SDLK_RIGHT:
-            moveCursor(1);
-            consumed = true;
-            break;
-          case SDLK_HOME:
-            cursorPosition = 0;
-            consumed = true;
-            break;
-          case SDLK_END:
-            cursorPosition = textBuffer.length();
-            consumed = true;
-            break;
-          default:
-            break;
-        }
+        if (event.keyCode == KEY_BACKSPACE) {
+          deleteCharacter();
+          dirty = true;
+          consumed = true;
+        } 
+      }
       }
       break;
     case TEXT_INPUT:
@@ -247,8 +155,6 @@ void TextInput::insertCharacter(const std::string& text_utf8) {
     textBuffer.insert(cursorPosition, text_utf8);
     cursorPosition += text_utf8.length();
     texture_needs_update = true;
-    cursorVisible = true;
-    lastBlinkTime = SDL_GetTicks();
   }
 }
 
@@ -258,36 +164,13 @@ void TextInput::deleteCharacter() {
     textBuffer.erase(cursorPosition - 1, 1);
     cursorPosition--;
     texture_needs_update = true;
-    cursorVisible = true;
-    lastBlinkTime = SDL_GetTicks();
   }
 }
 
 void TextInput::moveCursor(int delta) {
   if (!isFocused) return;
   cursorPosition += std::clamp(cursorPosition + delta, 0, (int)textBuffer.length());
-  cursorVisible = true;
-  lastBlinkTime = SDL_GetTicks();
   texture_needs_update = true; 
-}
-
-void TextInput::updateCursorBlink(Uint32 currentTimeMillis) {
-  if (!isFocused) {
-    cursorVisible = false;
-    return;
-  }
-  if (currentTimeMillis - lastBlinkTime > Blink_Interval_MS) {
-    cursorVisible = !cursorVisible;
-    lastBlinkTime = currentTimeMillis;
-    requestRedraw();  // Signal redraw if cursor state changes
-  }
-}
-
-void TextInput::setFocus(bool focus) {
-  isFocused = focus;
-  cursorVisible = focus;  // Show cursor when focused, hide when unfocused
-  lastBlinkTime = SDL_GetTicks();  // Reset blink timer on focus change
-  requestRedraw();
 }
 
 }  // Namespace UI

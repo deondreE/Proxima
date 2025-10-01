@@ -59,11 +59,17 @@ backgroundImage->pos(0, 0)
   });
   slider->z_index(10);
 
+  auto textInput = std::make_unique<TextInput>();
+  textInput->setFont("../../examples/windows/config/fonts/Delius-Regular.ttf", 22);
+  textInput->setColor({255, 0, 0, 255});
+  textInput->pos(100, 100);
+
   rootView.add(std::move(helloText));
   rootView.add(std::move(btn));
   rootView.add(std::move(backgroundImage));
   rootView.add(std::move(line));
   rootView.add(std::move(slider));
+  rootView.add(std::move(textInput));
 
   window.run();
 

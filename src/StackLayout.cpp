@@ -32,9 +32,9 @@ void StackLayout::layout(int offsetX, int offsetY) {
     View* child = child_ptr.get();
 
     if (orient == Vertical) {
-     child->pos(currentX, currentY + totalContentSize);
-     totalContentSize += child->height + spacing_val;
-     maxChildWidth = std::max(maxChildWidth, child->width);
+      child->pos(currentX, currentY + totalContentSize);
+      totalContentSize += child->height + spacing_val;
+      maxChildWidth = std::max(maxChildWidth, child->width);
     } else {
       child->pos(currentX + totalContentSize, currentY);
       totalContentSize += child->width + spacing_val;
@@ -45,7 +45,7 @@ void StackLayout::layout(int offsetX, int offsetY) {
   }
 }
 
-void StackLayout::draw(SDL_Renderer* renderer) {
+void StackLayout::draw(const ViewContext& renderer) {
   for (auto& child : children) {
     child->draw(renderer);
   }

@@ -17,7 +17,7 @@ class StackLayout : public View {
   StackLayout& spacing(int s);
   StackLayout& children_list(std::initializer_list<View*> vs);
 
-  void draw(SDL_Renderer* renderer) override;
+  void draw(const ViewContext& context) override;
   void layout(int ox, int oy) override;
   bool handleProximaEvent(const ProximaEvent& event) override;
 };

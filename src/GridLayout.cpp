@@ -1,5 +1,4 @@
 #include "UI/GridLayout.hpp"
-#include <SDL3/SDL_render.h>
 #include <stdexcept>
 #include "Core/ProximaEvent.hpp"
 
@@ -125,8 +124,8 @@ void GridLayout::layout(int offsetX, int offsetY) {
   }
 }
 
-void GridLayout::draw(SDL_Renderer* renderer) {
-  View::draw(renderer);
+void GridLayout::draw(const ViewContext& context) {
+  View::draw(context);
 }
 
 bool GridLayout::handleProximaEvent(const ProximaEvent& event) {
