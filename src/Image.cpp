@@ -1,6 +1,7 @@
 #include "UI/Image.hpp"
-#include <SDL3_image/SDL_image.h> 
+#include <cassert>
 #include <iostream>
+#include <filesystem>
 
 namespace UI {
 
@@ -10,56 +11,68 @@ Image::Image(const std::string& path, int x, int y, int w, int h)
     View::pos(x, y);
     View::size(w, h);
     if (!path.empty()) {
-        texture_needs_update = true;
+       image_needs_reload = true;
     }
 }
 
 Image::~Image() {
-    if (texture) {
-        SDL_DestroyTexture(texture);
-        texture = nullptr;
-    }
 }
 
-void Image::updateTexture(SDL_Renderer* renderer) {
-    if (texture) {
-        SDL_DestroyTexture(texture);
-        texture = nullptr;
-    }
+void Image::setContext(const ViewContext& context) {
+    View::setContext(context);
 
-    if (!image_path.empty() && renderer) {
-        std::cout << image_path;
-        texture = IMG_LoadTexture(renderer, image_path.c_str());
-        if (!texture) {
-            std::cerr << "IMG_LoadTexture Error:" << std::endl;
-        } else {
-            if (width == 0 && height == 0) {
-                // TODO: if 0 get from texture assuming texture is not null.
-            }
+    if (_context.renderer && image_needs_reload && !image_path.empty()) {
+        std::filesystem::path currentPath = std::filesystem::current_path();
+        currentPath.make_preferred();
+
+        std::filesystem::path full_path = currentPath / image_path;
+        std::filesystem::path normalized_path = full_path.lexically_normal();
+        normalized_path.make_preferred();
+        
+       auto test = _context.renderer->getImageLoader();
+       std::cout << image_path << std::endl;
+       loaded_image = test->loadImage(normalized_path.string());
+       if (!loaded_image) {
+        std::cerr << "ERROR: Failed to load image through loader \n";
+       } else {
+        if (width == 0 && height == 0) {
+            View::size(loaded_image->getWidth(), loaded_image->getHeight());
+        } else if (width == 0) {
+            View::size(static_cast<int>(height * (static_cast<float>(loaded_image->getWidth()) / loaded_image->getWidth())), height);
+        } else if (height == 0) {
+           View::size(width, static_cast<int>(width * (static_cast<float>(loaded_image->getHeight()) / loaded_image->getWidth())));
         }
+       }
+       image_needs_reload = false;
+    } else if (image_path.empty()) {
+        loaded_image = nullptr;
+        image_needs_reload = false;
     }
-    texture_needs_update = false;
 }
 
 Image& Image::setImagePath(const std::string& path) {
     if (image_path != path) {
-         image_path = path;
-         texture_needs_update = true;
+        image_path = path;
+        image_needs_reload = true;
     }
     return *this;
 }
 
-void Image::draw(SDL_Renderer* renderer) {
-    if (texture_needs_update) {
-        updateTexture(renderer); 
+void Image::draw(const ViewContext& context) {
+    Renderer* renderer = context.renderer;
+    assert(renderer && "Renderer must be valid in ViewContext!");
+    assert(_context.renderer == renderer && "Context mismatch in Image::draw");
+
+    if (!loaded_image || width <= 0 || height <= 0) {
+        View::draw(context);
+        return;
     }
 
-    if (texture) {
-        SDL_FRect dstRect = {(float)x, (float)y, (float)width, (float)height};
-        SDL_RenderTexture(renderer, texture,nullptr, &dstRect);
-    }
+    int drawX = getAbsoluteX(); 
+    int drawY = getAbsoluteY();
+    renderer->drawImage(loaded_image.get(), 0, 0, loaded_image->getWidth(), loaded_image->getHeight(), drawX, drawY, width, height);
 
-    View::draw(renderer);
+    View::draw(context);
 }
 
 bool Image::handleProximaEvent(const ProximaEvent& event) {

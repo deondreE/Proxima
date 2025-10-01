@@ -39,6 +39,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
           btn.setTextColor({255, 0, 0, 255});
     });
 
+
+  auto backgroundImage = std::make_unique<Image>();
+backgroundImage->pos(0, 0)
+    .size(100, 100)
+    .pos(10, 10) 
+    .setImagePath("../../examples/windows/config/assets/test-app.png");
+
   auto line = std::make_unique<Line>(10,10,10,10);
   line->setColor({0, 255, 0, 255});
   line->pos(200, 200);
@@ -54,6 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   rootView.add(std::move(helloText));
   rootView.add(std::move(btn));
+  rootView.add(std::move(backgroundImage));
   rootView.add(std::move(line));
   rootView.add(std::move(slider));
 

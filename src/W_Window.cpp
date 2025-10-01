@@ -1,6 +1,7 @@
 #include "UI/W_Window.hpp"
 #include "Core/WinEventDispatcher.hpp" 
 #include "UI/WIN_Renderer.hpp"
+#include "Core/WinImageLoader.hpp"
 
 namespace UI {
 	static W_Window* s_currentCreatingWindow = nullptr;
@@ -73,6 +74,7 @@ namespace UI {
 
         _eventDispatcher = std::make_unique<Core::WinEventDispatcher>();
         _renderer = std::make_unique<WIN_Renderer>(_window.get(), _config.initialWidth, _config.initialHeight);
+        _imageLoader = std::make_unique<Core::WinImageLoader>();
 
         if (_rootView) {
           ViewContext initialContext;

@@ -1,9 +1,10 @@
 #pragma once
+#include "Platform.hpp"
 
 namespace UI {
     class Renderer;
 }
 
-struct ViewContext {
+struct PEXPORT ViewContext {
     UI::Renderer* renderer = nullptr;
 };

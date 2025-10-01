@@ -79,6 +79,7 @@ add_library(proxima_ui SHARED
   src/Rect.cpp
   src/Line.cpp
   src/Slider.cpp
+  src/Image.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC

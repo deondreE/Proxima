@@ -3,12 +3,15 @@
 #include <Windows.h>
 #include "UI/Renderer.hpp"
 #include "Core/WinTextRenderer.hpp"
+#include "Core/WinImage.hpp"
+#include "Core/WinImageLoader.hpp"
 #include <stdexcept>
 #include <memory>
+#include "Platform.hpp"
 
 namespace UI {
 
-class WIN_Renderer : public Renderer {
+class PEXPORT WIN_Renderer : public Renderer {
 public:
   explicit WIN_Renderer(HWND hWnd, int initialWidth, int initialHeight);
 	virtual ~WIN_Renderer();
@@ -17,6 +20,7 @@ public:
 	void drawRect(int x, int y, int w, int h) override;
 	void fillRect(int x, int y, int w, int h) override;
 	void drawLine(int x1, int y1, int x2, int y2) override;
+ void drawImage(Core::IImage* image, int srcX, int srcY, int srcH, int srcW, int destX, int destY, int destW, int destH) override;
 
 	void present() override;
 	void clear() override;
@@ -25,6 +29,10 @@ public:
 
 	Core::TextRenderer* getTextRenderer() const override {
 		return _textRenderer.get();
+	}
+
+	Core::IImageLoader* getImageLoader() const override {
+		return _imageLoader.get();
 	}
 
 private:
@@ -41,6 +49,7 @@ private:
 	HBRUSH m_hBrush;
 	Color m_currentColor;
 	std::unique_ptr<Core::WinTextRenderer> _textRenderer;
+	std::unique_ptr<Core::WinImageLoader> _imageLoader;
 
   void updateGDIObjects();
  	void createBackBuffer(int width, int height);

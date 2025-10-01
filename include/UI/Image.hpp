@@ -1,15 +1,19 @@
 #pragma once
 #include "View.hpp"
+#include "Core/IImage.hpp"
+#include "Core/IImageLoader.hpp"
+#include "Platform.hpp"
+#include <string>
+#include <memory>
 
 namespace UI {
 
-class Image : public View {
+class PEXPORT Image : public View {
  private:
   std::string image_path;
-  SDL_Texture* texture = nullptr;
-  bool texture_needs_update = false;
+  std::unique_ptr<Core::IImage> loaded_image = nullptr;
+  bool image_needs_reload = false;
 
-  void updateTexture(SDL_Renderer* renderer);
  public:
     Image(const std::string& path = "", int x = 0, int y = 0, int w = 0, int h = 0);
     
@@ -30,7 +34,8 @@ class Image : public View {
 
     Image& setImagePath(const std::string& path);
 
-    void draw(SDL_Renderer* renderer) override;
+    void setContext(const ViewContext& context) override;
+    void draw(const ViewContext& context) override;
     bool handleProximaEvent(const ProximaEvent& event) override;
 
     Image(const Image&) = delete;

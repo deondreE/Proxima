@@ -25,6 +25,7 @@ namespace UI {
     }
 
     _textRenderer = std::make_unique<Core::WinTextRenderer>(m_hMemoryDC);
+    _imageLoader = std::make_unique<Core::WinImageLoader>();
 }
 
 WIN_Renderer::~WIN_Renderer() {
@@ -150,4 +151,24 @@ void WIN_Renderer::present() {
     GdiFlush();
 }
 
+void WIN_Renderer::drawImage(Core::IImage* image, int srcX, int srcY, int srcH, int srcW, int destX, int destY, int destW, int destH) {
+    if (!m_hMemoryDC || !image) return;
+
+    Core::WinImage* winImage = dynamic_cast<Core::WinImage*>(image);
+    if (!winImage) {
+        std::cerr << "ERROR: Tried to draw non win image.";
+        return;
+    }
+
+    HBITMAP hBitmap = winImage->getMap(); 
+    if (!hBitmap) return;
+
+    HDC hSrcDC = CreateCompatibleDC(m_hMemoryDC);
+    if (!hSrcDC) return;
+
+    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hSrcDC, hBitmap);
+
+    StretchBlt(m_hMemoryDC, destX, destY, destW, destH, hSrcDC, srcX, srcY, srcW,  srcH, SRCCOPY);
+    DeleteDC(hSrcDC);
+}
 } // Namespace UI

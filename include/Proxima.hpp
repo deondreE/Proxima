@@ -10,6 +10,7 @@
 	#include "UI/Rect.hpp"  
 	#include "UI/Line.hpp"
 	#include "UI/Slider.hpp"
+	#include "UI/Image.hpp"	
 #elif defined(__linux__)
 	#include <SDL3/SDL.h>
 	#include <SDL3_image/SDL_image.h>

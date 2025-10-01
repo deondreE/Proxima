@@ -18,6 +18,7 @@
 #include "Renderer.hpp"
 #include "Core/IEventDispatcher.hpp"
 #include "Core/ProximaEvent.hpp"
+#include "Core/IImageLoader.hpp"
 #include "View.hpp"
 
 namespace UI {
@@ -55,6 +56,7 @@ class IWindow {
   std::unique_ptr<IEventDispatcher> _eventDispatcher;
   std::unique_ptr<WindowHandleType, WindowDeleterType> _window;
   std::unique_ptr<Renderer> _renderer;
+  std::unique_ptr<Core::IImageLoader> _imageLoader;
   std::unique_ptr<View> _rootView;
   WindowConfig _config;
   int _titleBarHeight;
