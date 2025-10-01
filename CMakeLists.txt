@@ -62,7 +62,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
   #src/Core/EventDispatcher.cpp
   #src/GridLayout.cpp
   #src/TextInput.cpp
-  #src/Rect.cpp
+
   #src/Image.cpp
   #src/Line.cpp
   #src/Slider.cpp
@@ -76,6 +76,8 @@ add_library(proxima_ui SHARED
   src/Text.cpp
   src/Button.cpp
   src/View.cpp
+  src/Rect.cpp
+  src/Line.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC

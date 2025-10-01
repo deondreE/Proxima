@@ -39,8 +39,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
           btn.setTextColor({255, 0, 0, 255});
     });
 
+  auto line = std::make_unique<Line>(10,10,10,10);
+  line->setColor({0, 255, 0, 255});
+  line->pos(200, 200);
+
+  auto rect = std::make_unique<Rect>();
+  rect->size(100, 200);
+  rect->setColor({200, 200, 200, 255});
+
   rootView.add(std::move(helloText));
   rootView.add(std::move(btn));
+  rootView.add(std::move(rect));
+  rootView.add(std::move(line));
 
   window.run();
 
