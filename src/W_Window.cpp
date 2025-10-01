@@ -45,7 +45,7 @@ namespace UI {
     }
 
     bool W_Window::initializePlatformSubsystems() {
-         if (!registerWindowClass()) {
+        if (!registerWindowClass()) {
             return false;
           }
 
@@ -74,10 +74,32 @@ namespace UI {
         _eventDispatcher = std::make_unique<Core::WinEventDispatcher>();
         _renderer = std::make_unique<WIN_Renderer>(_window.get(), _config.initialWidth, _config.initialHeight);
 
+        setupEventHandlers();
+
         ShowWindow(hWnd, SW_SHOW);
         UpdateWindow(hWnd);
 
         return true;
+    }
+
+    void W_Window::setupEventHandlers() {
+      auto genericHandler = [this](const ProximaEvent& e) {
+        if (_rootView) {
+            _rootView->handleProximaEvent(e);
+            return true;
+        }
+
+        return false;
+      };
+
+      _eventDispatcher->onQuit([this](const ProximaEvent& e){ _running = false; return false; }); // Specific handler for Quit
+      _eventDispatcher->onKeyPress(genericHandler);
+      _eventDispatcher->onKeyRelease(genericHandler);
+      _eventDispatcher->onMousePress(genericHandler);
+      _eventDispatcher->onMouseRelease(genericHandler);
+      _eventDispatcher->onMouseMotion(genericHandler);
+      _eventDispatcher->onWindowResize(genericHandler);
+      _eventDispatcher->onTextInput(genericHandler);
     }
 
     void W_Window::run() {
@@ -91,9 +113,10 @@ namespace UI {
         _running = true;
 
         while (_running) {
-          _renderer->present();
-          pumpEvents();
-          _renderer->clear(); // Clear the back buffer
+          _eventDispatcher->pollAndTranslate(); 
+          _eventDispatcher->dispatch(); 
+
+          _renderer->clear();
           if (_rootView) {
               try {
                   _rootView->layout(0, 0);
@@ -102,7 +125,8 @@ namespace UI {
                   std::cerr << "Root view draw exception: " << ex.what() << "\n";
               }
           }
-          _renderer->present(); // Blit back buffer to screen
+
+          _renderer->present();
         }
         
         

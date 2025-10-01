@@ -42,6 +42,8 @@ private:
 	WNDPROC _originalWndProc = nullptr;
 	bool registerWindowClass();
 	bool unregisterWindowClass();
+	void setupEventHandlers();
+	void onEventInternal(const ProximaEvent& event);
 };
 
 } // Namespace UI

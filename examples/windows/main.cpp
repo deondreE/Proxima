@@ -30,11 +30,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   auto btn = std::make_unique<Button>();
   btn->setFont("../../examples/windows/config/fonts/Delius-Regular.ttf", 22)
+    .size(100, 50)
     .text("Working Btn")
     .setTextColor({0, 0, 0, 255})
     .onClick([](Button& btn) {
           std::cout << "Button Clicked" << std::endl;
           btn.text("Logged In");
+          btn.setTextColor({255, 0, 0, 255});
     });
 
   rootView.add(std::move(helloText));

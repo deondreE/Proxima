@@ -6,7 +6,7 @@ namespace UI {
 Button::Button(const std::string& text, const std::string& initial_font_path,
               int initial_font_size, const Color& defaultTextColor)
     : label(text),
-      onClickHandler([](Button&) {}),  // Default empty handler
+      onClickHandler([](Button&) {}), 
       font(nullptr),
       font_path(initial_font_path),
       font_size(initial_font_size),
@@ -54,7 +54,7 @@ void Button::draw(Renderer* renderer) {
   
   // bg
   if (is_pressed) {
-    renderer->setDrawColor({200, 200, 200, 255});
+    renderer->setDrawColor({255, 255, 255, 255});
   } else {
     renderer->setDrawColor({0, 0, 200, 255});
   }
@@ -63,12 +63,13 @@ void Button::draw(Renderer* renderer) {
   renderer->setDrawColor({50, 50, 50, 255});
   renderer->drawRect(x, y, width, height);
 
-  auto textDim = textRenderer.measureText(label, font);
+  auto f = textRenderer.loadFont(font_path, font_size);
+  auto textDim = textRenderer.measureText(label, f);
   int textX = x + (width - textDim.first) / 2;
   int textY = y + (height - textDim.second) / 2;
 
   textRenderer.loadFont(font_path, font_size);
-  textRenderer.drawText(label, font, text_color, textX, textY, width, height, false);
+  textRenderer.drawText(label, f, text_color, textX, textY, width, height, false);
 
   View::draw(renderer);
 }
