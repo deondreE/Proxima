@@ -7,7 +7,8 @@ namespace UI {
       m_hMemoryDC(nullptr), m_hBitmap(nullptr), m_hOldBitmap(nullptr),
       m_hPen(nullptr), m_hBrush(nullptr),
       m_currentColor(255, 255, 255, 255), // Default to black
-      m_width(initialWidth), m_height(initialHeight)
+      m_width(initialWidth), m_height(initialHeight),
+			m_hBackgroundBrush(nullptr)
 {
     if (!m_hWnd || !IsWindow(m_hWnd)) {
         throw std::runtime_error("WIN_Renderer: Invalid window handle provided to constructor.");
@@ -17,12 +18,19 @@ namespace UI {
 
     updateGDIObjects();
 
+		m_hBackgroundBrush = CreateSolidBrush(RGB(m_backgroundColor.r, m_backgroundColor.g, m_backgroundColor.b));
+    if (!m_hBackgroundBrush) {
+        // Handle error: could throw or log
+        OutputDebugStringA("Failed to create initial background brush!\n");
+    }
+
     _textRenderer = std::make_unique<Core::WinTextRenderer>(m_hMemoryDC);
 }
 
 WIN_Renderer::~WIN_Renderer() {
     if (m_hPen) DeleteObject(m_hPen);
     if (m_hBrush) DeleteObject(m_hBrush);
+		if (m_hBackgroundBrush) DeleteObject(m_hBackgroundBrush);
     
     destroyBackBuffer();
 }
@@ -127,8 +135,8 @@ void WIN_Renderer::drawLine(int x1, int y1, int x2, int y2) {
 
 void WIN_Renderer::clear() {
     if (!m_hMemoryDC) return;
-    RECT rect{0, 0, m_width, m_height}; // Clear the entire back buffer
-    FillRect(m_hMemoryDC, &rect, m_hBrush); // Clear with current brush
+    RECT rect{0, 0, m_width, m_height};
+    FillRect(m_hMemoryDC, &rect, m_hBackgroundBrush); 
 }
 
 void WIN_Renderer::present() {

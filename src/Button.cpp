@@ -3,96 +3,22 @@
 
 namespace UI {
 
-void Button::reopenFont() {
-  if (font) {
-    TTF_CloseFont(font);
-    font = nullptr;
-  }
-  if (!font_path.empty() && font_size > 0) {
-    font = TTF_OpenFont(font_path.c_str(), font_size);
-    if (!font) {
-      std::cerr << "Button::reopenFont: Failed to open font '" << font_path
-                << "' with size " << font_size << "! TTF_Error: " << std::endl;
-    }
-  }
-  texture_needs_update = true;
-}
-
 Button::Button(const std::string& text, const std::string& initial_font_path,
-               int initial_font_size, SDL_Color defaultTextColor)
+              int initial_font_size, const Color& defaultTextColor)
     : label(text),
       onClickHandler([](Button&) {}),  // Default empty handler
       font(nullptr),
       font_path(initial_font_path),
       font_size(initial_font_size),
       text_color(defaultTextColor),
-      label_texture(nullptr),
-      texture_needs_update(true),
       is_pressed(false) {
-  if (!font_path.empty()) {
-    reopenFont();
-  } else {
-  }
 }
 
 Button::~Button() {
-  if (label_texture) {
-    SDL_DestroyTexture(label_texture);
-  }
-  if (font) {
-    TTF_CloseFont(font);
-  }
-}
-
-Button Button::create(const std::string& text) {
-  return Button(text);
-}
-
-void Button::updateLabelTexture(SDL_Renderer* renderer) {
-  if (!renderer || !font || label.empty()) {
-    if (label_texture) {
-      SDL_DestroyTexture(label_texture);
-      label_texture = nullptr;
-    }
-    texture_needs_update = false;
-    return;
-  }
-
-  if (!texture_needs_update) {
-    return;
-  }
-
-  if (label_texture) {
-    SDL_DestroyTexture(label_texture);
-    label_texture = nullptr;
-  }
-
-  SDL_Surface* text_surface =
-      TTF_RenderText_Blended(font, label.c_str(), label.length(), text_color);
-  if (!text_surface) {
-    std::cerr << "Button::updateLabelTexture: Failed to render text surface: "
-              << std::endl;
-    texture_needs_update = false;
-    return;
-  }
-
-  label_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-  if (!label_texture) {
-    std::cerr
-        << "Button::updateLabelTexture: Failed to create texture from surface: "
-        << SDL_GetError() << std::endl;
-    SDL_DestroySurface(text_surface);
-    texture_needs_update = false;
-    return;
-  }
-
-  SDL_DestroySurface(text_surface);
-  texture_needs_update = false;
 }
 
 Button& Button::text(const std::string& str) {
   label = str;
-  texture_needs_update = true;
   return *this;
 }
 
@@ -105,16 +31,14 @@ Button& Button::setFont(const std::string& fontPath, int size) {
   if (font_path != fontPath || font_size != size) {
     font_path = fontPath;
     font_size = size;
-    reopenFont();  // Reopen the font with new parameters
   }
   return *this;
 }
 
-Button& Button::setColor(SDL_Color newColor) {
+Button& Button::setTextColor(const Color& newColor) {
   if (text_color.r != newColor.r || text_color.g != newColor.g ||
       text_color.b != newColor.b || text_color.a != newColor.a) {
     text_color = newColor;
-    texture_needs_update = true;
   }
   return *this;
 }
@@ -125,31 +49,26 @@ void Button::click() {
   }
 }
 
-void Button::draw(SDL_Renderer* renderer) {
-  updateLabelTexture(renderer);
-
+void Button::draw(Renderer* renderer) {
+  auto& textRenderer = renderer->getTextRenderer();
+  
   // bg
   if (is_pressed) {
-    SDL_SetRenderDrawColor(renderer, 0xAA, 0xAA, 0xAA, 0xFF);
+    renderer->setDrawColor({200, 200, 200, 255});
   } else {
-    SDL_SetRenderDrawColor(renderer, 0xDD, 0xDD, 0xDD, 0xFF);
+    renderer->setDrawColor({0, 0, 200, 255});
   }
+  renderer->fillRect(x, y , width, height);
 
-  SDL_FRect bg_rect = {(float)x, (float)y, (float)width, (float)height};
-  SDL_RenderFillRect(renderer, &bg_rect);
+  renderer->setDrawColor({50, 50, 50, 255});
+  renderer->drawRect(x, y, width, height);
 
-  // border
-  SDL_SetRenderDrawColor(renderer, 0x55, 0x55, 0x55, 0xFF);
-  SDL_RenderRect(renderer, &bg_rect);
+  auto textDim = textRenderer.measureText(label, font);
+  int textX = x + (width - textDim.first) / 2;
+  int textY = y + (height - textDim.second) / 2;
 
-  if (label_texture) {
-    float text_w, text_h;
-    SDL_GetTextureSize(label_texture, &text_w, &text_h);
-    SDL_FRect text_rect = {(float)x + (width - text_w) / 2.0f,
-                           (float)y + (height - text_h) / 2.0f, (float)text_w,
-                           (float)text_h};
-    SDL_RenderTexture(renderer, label_texture, NULL, &text_rect);
-  }
+  textRenderer.loadFont(font_path, font_size);
+  textRenderer.drawText(label, font, text_color, textX, textY, width, height, false);
 
   View::draw(renderer);
 }
@@ -186,7 +105,6 @@ bool Button::handleProximaEvent(const ProximaEvent& event) {
       }
       break;
     case WINDOW_RESIZE:
-      texture_needs_update = true;
       break;
     default:
       break;

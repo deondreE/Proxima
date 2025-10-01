@@ -1,39 +1,35 @@
 #pragma once
 
-#if defined (_WIN32)
-  #include <SDL3_ttf/SDL_ttf.h>
-#elif defined(__linux__)
+#if defined (_WIN32) 
+  #include "Core/WinTextRenderer.hpp"
+#elif defined(__linux__) 
+#include <SDL3_ttf/SDL_ttf.h>
 #endif
 
 #include <functional>
 #include <string>
 #include "View.hpp"
+#include "Color.hpp"
 #include "Core/ProximaEvent.hpp"
+#include "Core/TextRenderer.hpp"
+#include "Platform.hpp"
 
 namespace UI {
 
-class Button : public View {
+class PEXPORT Button : public View {
   std::string label;
   std::function<void(Button&)> onClickHandler;
-  TTF_Font* font;
+  Core::Font* font;
   std::string font_path;
   int font_size;
-  SDL_Color text_color;
-  SDL_Texture* label_texture;
-  bool texture_needs_update;
+  Color text_color;
   bool is_pressed;
-
-  void updateLabelTexture(SDL_Renderer* renderer);
-  void reopenFont();
 
  public:
   Button(const std::string& text = "",
-         const std::string& initial_font_path = "", int initial_font_size = 24,
-         SDL_Color defaultTextColor = {0, 0, 0, 255});
+        const std::string& initial_font_path = "", int initial_font_size = 24,
+        const Color& defaultTextColor = {0, 0, 0, 255});
   ~Button() override;
-
-  static Button create(const std::string& text = "");
-
 
   Button& size(int w, int h) {
     View::size(w, h);
@@ -46,10 +42,10 @@ class Button : public View {
   Button& text(const std::string& str);
   Button& onClick(std::function<void(Button&)> cb);
   Button& setFont(const std::string& fontPath, int size);
-  Button& setColor(SDL_Color newColor);
+  Button& setTextColor(const Color& newColor);
 
   void click();
-  void draw(SDL_Renderer* renderer) override;
+  void draw(Renderer* renderer) override;
   bool handleProximaEvent(const ProximaEvent& event) override;
 
   Button(const Button&) = delete;

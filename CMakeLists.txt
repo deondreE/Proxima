@@ -55,7 +55,7 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # add_subdirectory(external/yaml-cpp)
-  #src/Button.cpp
+
   #src/StackLayout.cpp
   #src/ConfigManager.cpp
 
@@ -74,6 +74,7 @@ add_library(proxima_ui SHARED
   src/Core/WIN_Renderer.cpp
   src/W_Window.cpp
   src/Text.cpp
+  src/Button.cpp
   src/View.cpp
 )
 

@@ -30,15 +30,17 @@ public:
 private:
 	HWND m_hWnd;
   HDC m_hMemoryDC;
- RECT m_clientBounds;
-HBITMAP m_hBitmap;
-HBITMAP m_hOldBitmap;
-int m_width, m_height;
+	RECT m_clientBounds;
+	HBITMAP m_hBitmap;
+	HBITMAP m_hOldBitmap;
+	int m_width, m_height;
 
- HPEN m_hPen;
- HBRUSH m_hBrush;
- Color m_currentColor;
- std::unique_ptr<Core::WinTextRenderer> _textRenderer;
+	HPEN m_hPen;
+	HBRUSH m_hBackgroundBrush;
+	Color m_backgroundColor;
+	HBRUSH m_hBrush;
+	Color m_currentColor;
+	std::unique_ptr<Core::WinTextRenderer> _textRenderer;
 
   void updateGDIObjects();
  	void createBackBuffer(int width, int height);

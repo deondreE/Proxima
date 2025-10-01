@@ -6,6 +6,7 @@
 	#include <memory>
 	#include "UI/W_Window.hpp"
 	#include "UI/Text.hpp"
+	#include "UI/Button.hpp"
 #elif defined(__linux__)
 	#include <SDL3/SDL.h>
 	#include <SDL3_image/SDL_image.h>
@@ -17,7 +18,7 @@
 	#include "Core/EventDispatcher.hpp" 
 	#include "Core/ProximaEvent.hpp"
 
-	#include "UI/Button.hpp"
+
 	#include "UI/ConfigManager.hpp"
 	#include "UI/Image.hpp"
 	#include "UI/Line.hpp"
