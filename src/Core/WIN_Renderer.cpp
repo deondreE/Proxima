@@ -5,56 +5,39 @@ namespace UI {
 	WIN_Renderer::WIN_Renderer(HWND hWnd) 
 		: m_hWnd(hWnd), m_hDC(nullptr), m_hBrush(nullptr), m_currentColor(Color::Black)
 	{
-		if (m_hWnd == nullptr) {
-			throw std::runtime_error("WIN_Renderer: Invalid HWND Provided.");
-		}
+		if (!m_hWnd) {
+        throw std::runtime_error("WIN_Renderer: Invalid window handle");
+    }
 
-		m_hDC = GetDC(m_hWnd); 
-		if (m_hDC) {
-          throw std::runtime_error(
-              "WIN_Renderer: Failed to get device context");
-		}
-
-		updateGDIObjects();
+    m_hDC = GetDC(m_hWnd);
+    if (!m_hDC) {
+        throw std::runtime_error("WIN_Renderer: Failed to get device context");
+    }
+    setDrawColor(Color(0, 0, 0, 255));
 	}
 
 	WIN_Renderer::~WIN_Renderer() {
-		if (m_hPen) {
-			DeleteObject(m_hPen);
-			m_hPen = nullptr;
-		}
-		if (m_hBrush) {
-          DeleteObject(m_hBrush);
-          m_hBrush = nullptr;
-		}
-		if (m_hDC) {
-          ReleaseDC(m_hWnd, m_hDC);
-          m_hDC = nullptr;
-		}
+		if (m_hPen) DeleteObject(m_hPen);
+    if (m_hBrush) DeleteObject(m_hBrush);
+    if (m_hWnd && m_hDC) ReleaseDC(m_hWnd, m_hDC);
 	}
 
 	void WIN_Renderer::updateGDIObjects() {
 		if (m_hPen) {
-			DeleteObject(m_hPen);
-          m_hPen = nullptr;
-		}
+        DeleteObject(m_hPen);
+        m_hPen = nullptr;
+    }
+    if (m_hBrush) {
+        DeleteObject(m_hBrush);
+        m_hBrush = nullptr;
+    }
 
-		if (m_hBrush) {
-          DeleteObject(m_hBrush);
-          m_hBrush = nullptr;
-        }
+    COLORREF cref = RGB(m_currentColor.r, m_currentColor.g, m_currentColor.b);
+    m_hPen = CreatePen(PS_SOLID, 1, cref);
+    m_hBrush = CreateSolidBrush(cref);
 
-		COLORREF gdiColor =
-            RGB(m_currentColor.r, m_currentColor.g, m_currentColor.b);
-        m_hPen = CreatePen(PS_SOLID, 1, gdiColor);
-		if (m_hPen == nullptr) {
-          return;
-		}
-
-		m_hBrush = CreateSolidBrush(gdiColor);
-		if (m_hBrush == nullptr) {
-          return;
-		}
+    SelectObject(m_hDC, m_hPen);
+    SelectObject(m_hDC, m_hBrush);
 	}
 
 	void WIN_Renderer::setDrawColor(const Color& color) {
@@ -69,41 +52,38 @@ namespace UI {
       if (m_hDC == nullptr || m_hPen == nullptr)
         return;
 
-	  HGDIOBJ oldPen = SelectObject(m_hDC, m_hPen);
+	  	HGDIOBJ oldPen = SelectObject(m_hDC, m_hPen);
       Rectangle(m_hDC, x, y, x + w, y + h);
-      SelectObject(m_hDC, oldPen);
 	}
 
 	void WIN_Renderer::fillRect(int x, int y, int w, int h) {
       if (m_hDC == nullptr || m_hBrush == nullptr)
         return;
 
-	  RECT rect = {x, y, x + w, y + h};
-		
-	  FillRect(m_hDC, &rect, m_hBrush);
+			RECT rect = {x, y, x + w, y + h};
+			FillRect(m_hDC, &rect, m_hBrush);
 	}
 
 	void WIN_Renderer::drawLine(int x1, int y1, int x2, int y2) {
       if (m_hDC == nullptr || m_hPen == nullptr)
         return;
 
-	  HGDIOBJ oldPen = SelectObject(m_hDC, m_hPen);
+	  	HGDIOBJ oldPen = SelectObject(m_hDC, m_hPen);
 
-	  MoveToEx(m_hDC, x1, y1, NULL);
-      LineTo(m_hDC, x2, y2);
-      SelectObject(m_hDC, oldPen);
+			MoveToEx(m_hDC, x1, y1, NULL);
+			LineTo(m_hDC, x2, y2);
 	}
 
-	void WIN_Renderer::present() {}
+	void WIN_Renderer::present() {
+		GdiFlush();
+	}
 
 	void WIN_Renderer::clear() {
-      if (m_hDC == nullptr)
-        return;
-
-	  RECT clientRect;
-      GetClientRect(m_hWnd, &clientRect);
-      fillRect(0, 0, clientRect.right - clientRect.left,
-               clientRect.bottom - clientRect.top);
+      RECT client;
+			GetClientRect(m_hWnd, &client);
+			HBRUSH bgBrush = CreateSolidBrush(RGB(255, 255, 255)); // or m_currentColor
+			FillRect(m_hDC, &client, bgBrush);
+			DeleteObject(bgBrush);
 	}
 
 } // Namespace UI

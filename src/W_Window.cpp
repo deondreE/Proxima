@@ -1,11 +1,12 @@
 #include "UI/W_Window.hpp"
 #include "Core/WinEventDispatcher.hpp" 
+#include "UI/WIN_Renderer.hpp"
 
 namespace UI {
 	static W_Window* s_currentCreatingWindow = nullptr;
 
 	W_Window::W_Window(const WindowConfig& config, View* rootView)
-		: IWindow(nullptr, WinWindowDeleter(), nullptr, WinRendererDeleter(),
+		: IWindow(nullptr, WinWindowDeleter(), nullptr,
 			rootView, config, 0) 
 	{
       _titleBarHeight =
@@ -74,6 +75,7 @@ namespace UI {
         }
 
         _eventDispatcher = std::make_unique<Core::WinEventDispatcher>();
+        _renderer = std::make_unique<WIN_Renderer>(hWnd);
 
         ShowWindow(hWnd, SW_SHOW);
         UpdateWindow(hWnd);
@@ -141,6 +143,15 @@ namespace UI {
           HBRUSH brush = CreateSolidBrush(RGB(128, 0, 128));
           FillRect(hdc, &clientRect, brush);
           DeleteObject(brush);
+
+          if (_rootView && _renderer) {
+            try {
+              _rootView->draw(_renderer.get());
+              _renderer->present();
+            } catch(const std::exception& ex) {
+              std::cerr << "Root view draw exception." << ex.what() <<"\n";
+            }
+          }
 
           std::string text = "Hello from W_Window!";
           SetTextColor(hdc, RGB(255, 255, 0));

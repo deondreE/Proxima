@@ -4,6 +4,8 @@
 
 #include <memory>
 
+using namespace UI;
+
 namespace Core {
 class DebugManager;
 
@@ -37,7 +39,6 @@ private:
   Debug();
   ~Debug();
 
-  std::unique_ptr<UI::Window> _debugWindow;
   Core::DebugManager& _debugManager;
 };
 }  // namespace Core

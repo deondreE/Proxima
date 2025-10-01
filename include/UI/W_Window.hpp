@@ -17,29 +17,21 @@ struct WinWindowDeleter {
   }
 };
 
-struct WinRendererDeleter {
-  void operator()(HDC__* h) const {
-	  if (h) {
-		std::cout << "DEBUG:: Destroying HDC" << h << std::endl;
-        DeleteDC(reinterpret_cast<HDC>(h));
-	  }
-  }
-};
 
 namespace UI {
 
-class PEXPORT W_Window : public IWindow<HWND__, WinWindowDeleter, HDC__, WinRendererDeleter> {
+class PEXPORT W_Window : public IWindow<HWND__, WinWindowDeleter> {
 public:	
 	static constexpr const char* CLASS_NAME = "W_WindowClass";
 
 	W_Window(const WindowConfig& config, View* rootView = nullptr);
-    ~W_Window();
+  ~W_Window();
 
 	void run() override;
 	void stop() override; 
 
 	bool initializePlatformSubsystems() override;
-    void cleanupPlatformSubsystems() override;
+  void cleanupPlatformSubsystems() override;
 
 protected:
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message,

@@ -49,24 +49,21 @@ struct Titlebar {
  */
 template <
     typename WindowHandleType, 
-    typename WindowDeleterType,
-    typename RendererHandleType,
-    typename RendererDelterType>
+    typename WindowDeleterType>
 class IWindow {
  public:
   std::unique_ptr<IEventDispatcher> _eventDispatcher;
   std::unique_ptr<WindowHandleType, WindowDeleterType> _window;
-  std::unique_ptr<RendererHandleType, RendererDelterType> _renderer;
+  std::unique_ptr<Renderer> _renderer;
   std::unique_ptr<View> _rootView;
   WindowConfig _config;
   int _titleBarHeight;
   
-  IWindow(WindowHandleType* window, WindowDeleterType window_deleter,
-          RendererHandleType* renderer, RendererDelterType renderer_deleter,
+  IWindow(WindowHandleType* window, WindowDeleterType window_deleter, Renderer* renderer,
                   View* root_view_ptr,
                   const WindowConfig& config, int titleBarHeight)
       : _window(window, std::move(window_deleter)),
-        _renderer(renderer, std::move(renderer_deleter)),
+        _renderer(renderer),
         _rootView(root_view_ptr),
         _config(config),
         _titleBarHeight(titleBarHeight) {}
@@ -86,7 +83,7 @@ class IWindow {
   virtual void cleanupPlatformSubsystems() = 0;
 
   [[nodiscard]] WindowHandleType* getWindow() const { return _window.get(); }
-  [[nodiscard]] RendererHandleType* getRenderer() const { return _renderer.get(); }
+  // [[nodiscard]] Renderer* getRenderer() const { return _renderer.get(); }
   [[nodiscard]] View& getRootView() const { 
       if (!_rootView) {
         throw std::runtime_error("Brokey");
