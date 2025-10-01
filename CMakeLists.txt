@@ -53,22 +53,14 @@ else()
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# add_subdirectory(external/yaml-cpp)
-
   #src/StackLayout.cpp
   #src/ConfigManager.cpp
-
-  #src/Core/EventDispatcher.cpp
   #src/GridLayout.cpp
   #src/TextInput.cpp
-
-  #src/Image.cpp
-  #src/Line.cpp
-  #src/Slider.cpp
   #src/Core/Debug.cpp
   #src/Core/DebugManager.cpp
 
+if (WIN32)
 add_library(proxima_ui SHARED
   src/View.cpp
   src/Core/WIN_Renderer.cpp
@@ -81,6 +73,19 @@ add_library(proxima_ui SHARED
   src/Slider.cpp
   src/Image.cpp
 )
+elseif(UNIX)
+add_subdirectory(external/yaml-cpp)
+add_library(proxima_ui SHARED
+  src/View.cpp
+  src/Text.cpp
+  src/Button.cpp
+  src/View.cpp
+  src/Rect.cpp
+  src/Line.cpp
+  src/Slider.cpp
+  src/Image.cpp
+)
+endif()
 
 target_include_directories(proxima_ui PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -96,6 +101,7 @@ if (PROXIMA_USE_SDL)
     SDL3::SDL3
     SDL3_ttf::SDL3_ttf
     SDL3_image::SDL3_image
+    proxima_ui
   )
 endif()
 
