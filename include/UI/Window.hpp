@@ -1,13 +1,22 @@
 #pragma once
 
-#include <SDL3/SDL.h>
-#include <SDL3_ttf/SDL_ttf.h>
+#if defined(__linux__)
+    #include <SDL3/SDL.h>
+    #include <SDL3_ttf/SDL_ttf.h>
+#elif defined(_WIN32)
+#include <Windows.h>
+#include <windowsx.h>
+#endif
+
 #include <functional>
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <iostream>
+#include <utility>
 
-#include "Core/EventDispatcher.hpp"
+#include "Renderer.hpp"
+// #include "Core/EventDispatcher.hpp"
 #include "Core/ProximaEvent.hpp"
 #include "View.hpp"
 
@@ -19,112 +28,117 @@ struct WindowConfig {
     int initialHeight = 600;
     bool resizable = true;
     bool vsync = true;
+    #if defined(_WIN32)
+    DWORD style = WS_OVERLAPPEDWINDOW;
+    DWORD exStyle = 0;
+    #endif
+};
+
+struct Titlebar {
+  std ::string text;
+  color_t bgColor;
+  Color textColor;
 };
 
 /**
- * @brief Represents an application window, encapsulating (SDL_Window, SDL_Renderer,
- *        and the root UI View. It also manages SDL event polling and dispatching.)For Linux Environment;
+ * @brief Window interface for defining Window response.
+ * T - Window
+ * F_Window - Deleter Lambda, Window
+ * R - Renderer
+ * F_Renderer - Deleter Lambda, Renderer
  */
-class Window {
-private:
-    std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> _sdlWindow;
-    std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> _sdlRenderer;
+template <
+    typename WindowHandleType, 
+    typename WindowDeleterType,
+    typename RendererHandleType,
+    typename RendererDelterType>
+class IWindow {
+ public:
+  std::unique_ptr<WindowHandleType, WindowDeleterType> _window;
+  std::unique_ptr<RendererHandleType, RendererDelterType> _renderer;
+  std::unique_ptr<View> _rootView;
+  WindowConfig _config;
+  int _titleBarHeight;
+  
+  IWindow(WindowHandleType* window, WindowDeleterType window_deleter,
+          RendererHandleType* renderer, RendererDelterType renderer_deleter,
+                   View* root_view_ptr,
+                 const WindowConfig& config, int titleBarHeight)
+      : _window(window, std::move(window_deleter)),
+        _renderer(renderer, std::move(renderer_deleter)),
+        _rootView(root_view_ptr),
+        _config(config),
+        _titleBarHeight(titleBarHeight) {}
+  virtual ~IWindow() = default;
+  
+  virtual void run() = 0;
+  virtual void stop() = 0;
 
-    std::unique_ptr<EventDispatcher> _eventDispatcher;
-    std::unique_ptr<View> _rootView;
-    WindowConfig _config;
+  virtual bool initializePlatformSubsystems() = 0;
+  virtual void cleanupPlatformSubsystems() = 0;
 
+  [[nodiscard]] WindowHandleType* getWindow() const { return _window.get(); }
+  [[nodiscard]] RendererHandleType* getRenderer() const { return _renderer.get(); }
+  [[nodiscard]] View& getRootView() const { 
+      if (!_rootView) {
+        throw std::runtime_error("Brokey");
+      }
+      return *_rootView.get();
+  }
+
+  #pragma region Callbacks
+  // template <typename Callback>
+  // void onQuit(Callback&& cb) {
+  //   if (_eventDispatcher) {
+  //     _eventDispatcher->onQuit(std::forward<Callback>(cb));
+  //   }
+  // }
+
+  // template <typename Callback>
+  // void onKeyPress(Callback&& cb) {
+  //   if (_eventDispatcher) {
+  //     _eventDispatcher->onKeyPress(std::forward<Callback>(cb));
+  //   }
+  // }
+
+  // template <typename Callback>
+  // void onKeyRelease(Callback&& cb) {
+  //   if (_eventDispatcher) {
+  //     _eventDispatcher->onKeyRelease(std::forward<Callback>(cb));
+  //   }
+  // }
+
+  // template <typename Callback>
+  // void onTextInput(Callback&& cb) {
+  //   if (_eventDispatcher) {
+  //     _eventDispatcher->onTextInput(std::forward<Callback>(cb));
+  //   }
+  // }
+
+  // template <typename Callback>
+  // void onMousePress(Callback&& cb) {
+  //   if (_eventDispatcher) {
+  //     _eventDispatcher->onMousePress(std::forward<Callback>(cb));
+  //   }
+  // }
+
+  // template <typename Callback>
+  // void onMouseRelease(Callback&& cb) {
+  //   if (_eventDispatcher) {
+  //     _eventDispatcher->onMouseRelease(std::forward<Callback>(cb));
+  //   }
+  // }
+
+  // template <typename Callback>
+  // void onMouseMotion(Callback&& cb) {
+  //   if (_eventDispatcher) {
+  //     _eventDispatcher->onMouseMotion(std::forward<Callback>(cb));
+  //   }
+  // }
+  #pragma endregion
+
+protected:
     bool _running = false;
-
-    TTF_Font* _titleBarFont = nullptr;
-    int _titleBarHeight = 30;
-    SDL_Color _titleBarBgColor = {50,50,50,255};
-    SDL_Color _titleBarTextColor = {255, 255, 255, 255};
-
-
-    bool initializeSDLSubsystems();
-
-    void cleanupSDLSubsystems();
-
-    bool handleWindowResizeEvents(const ProximaEvent& ev);
-
-    bool handleQuitEvent(const ProximaEvent& ev);
-public: 
-    explicit Window(const WindowConfig& config = {});
-    ~Window();
-
-    Window(const Window&) = delete;
-    Window& operator=(const Window&) = delete;
-    Window(Window&&) = delete;
-    Window& operator=(Window&&) = delete;
-
-    [[nodiscard]] SDL_Window* getSDLWindow() const { return _sdlWindow.get(); }
-    [[nodiscard]] SDL_Renderer* getSDLRenderer() const { return _sdlRenderer.get(); }
-    [[nodiscard]] View& getRootView() const {
-        if (!_rootView) {
-            throw std::runtime_error("Root View not initialized in the window!");
-        }
-        return *_rootView;
-    }
-
-    void run();
-    void stop();
-
-    template<typename Callback>
-    void onQuit(Callback&& cb) {
-        if (_eventDispatcher) {
-            _eventDispatcher->onQuit(std::forward<Callback>(cb));
-        }
-    }
-
-    template<typename Callback>
-    void onKeyPress(Callback&& cb) {
-        if (_eventDispatcher) {
-            _eventDispatcher->onKeyPress(std::forward<Callback>(cb));
-        }
-    }
-
-    template<typename Callback>
-    void onKeyRelease(Callback&& cb) {
-        if (_eventDispatcher) {
-            _eventDispatcher->onKeyRelease(std::forward<Callback>(cb));
-        }
-    }
-
-    template<typename Callback>
-    void onTextInput(Callback&& cb) {
-        if (_eventDispatcher) {
-            _eventDispatcher->onTextInput(std::forward<Callback>(cb));
-        }
-    }
-
-    template<typename Callback>
-    void onMousePress(Callback&& cb) {
-        if (_eventDispatcher) {
-            _eventDispatcher->onMousePress(std::forward<Callback>(cb));
-        }
-    }
-
-    template<typename Callback>
-    void onMouseRelease(Callback&& cb) {
-        if (_eventDispatcher) {
-            _eventDispatcher->onMouseRelease(std::forward<Callback>(cb));
-        }
-    }
-
-    template<typename Callback>
-    void onMouseMotion(Callback&& cb) {
-        if (_eventDispatcher) {
-            _eventDispatcher->onMouseMotion(std::forward<Callback>(cb));
-        }
-    }
-
-    // template<typename Callback>
-    // void onMouseWheel(Callback&& cb) {
-    //     if (_eventDispatcher) {
-    //         _eventDispatcher->onMouseWheel(std::forward<Callback>(cb));
-    //     }
-    // }
 };
 
 }  // Namespace UI

@@ -1,7 +1,4 @@
 #include "Core/EventDispatcher.hpp"
-#include <X11/Xlib.h>
-#include <X11/Xlocale.h>
-#include <X11/keysym.h>
 #include "Core/ProximaEvent.hpp"
 
 EventDispatcher::EventDispatcher(SDL_Window* win)

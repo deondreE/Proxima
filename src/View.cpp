@@ -57,7 +57,7 @@ View& View::pos(int nx, int ny) {
   return *this;
 }
 
-void View::draw(SDL_Renderer* renderer) {
+void View::draw(Renderer* renderer) {
   for (const auto& child_ptr : children) {
     if (child_ptr) {
       child_ptr->draw(renderer);

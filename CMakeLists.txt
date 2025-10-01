@@ -43,22 +43,7 @@ elseif(UNIX)
 elseif(WIN32)
   message(STATUS "Configuring Windows")
 
-  find_path(DIRECT_X_INCLUDE_DIR d3d11.h
-      PATHS ENV DXSDK_DIR/Include
-      NO_CMAKE_FIND_ROOT_PATH)
-  find_library(D3D11_Library Names d3d11
-      PATHS ENV DXSDK_DIR/Lib/x64 ENV DXDSK/Lib/x86
-      NO_CMAKE_FIND_ROOT_PATH)
-  find_library(DXGI_Library Names dxgi
-      PATHS ENV DXSDK_Dir/Lib/x64 ENV DXSDK/Lib/x86
-      NO_CMAKE_FIND_ROOT_PATH)
-
-  if (NOT DIRECT_X_INCLUDE_DIR OR NOT D3D11_Library OR NOT DXGI_Library)
-    message(FATAL_ERROR "DirectX 11 SDK not found. Please make it work.")
-  endif()
-
-  list(APPEND PROXIMA_UI_PLATFORM_INCLUDE_DIRS ${DIRECTX_INCLUDE_DIR})
-  list(APPEND PROXIMA_UI_PLATFORM_LIBS ${D3D11_LIBRARY} ${DXGI_LIBRARY})
+  list (APPEND PROXIMA_UI_PLATFORM_LIBS user32 gdi32 uuid ole32)
 
   set(PROXIMA_USE_SDL FALSE)
   set(PROXIMA_GUI_SUBSYSTEM "WIN32")
@@ -69,24 +54,25 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_subdirectory(external/yaml-cpp)
+# add_subdirectory(external/yaml-cpp)
+  #src/Button.cpp
+  #src/StackLayout.cpp
+  #src/ConfigManager.cpp
+  #src/Text.cpp
+  #src/Core/EventDispatcher.cpp
+  #src/GridLayout.cpp
+  #src/TextInput.cpp
+  #src/Rect.cpp
+  #src/Image.cpp
+  #src/Line.cpp
+  #src/Slider.cpp
+  #src/Core/Debug.cpp
+  #src/Core/DebugManager.cpp
 
-add_library(proxima_ui
+add_library(proxima_ui SHARED
   src/View.cpp
-  src/Button.cpp
-  src/StackLayout.cpp
-  src/ConfigManager.cpp
-  src/Text.cpp
-  src/Core/EventDispatcher.cpp
-  src/GridLayout.cpp
-  src/TextInput.cpp
-  src/Rect.cpp
-  src/Image.cpp
-  src/Line.cpp
-  src/Slider.cpp
-  src/Window.cpp
-  src/Core/Debug.cpp
-  src/Core/DebugManager.cpp
+  src/Core/WIN_Renderer.cpp
+  src/W_Window.cpp
 )
 
 target_include_directories(proxima_ui PUBLIC
@@ -95,7 +81,6 @@ target_include_directories(proxima_ui PUBLIC
 )
 
 target_link_libraries(proxima_ui PUBLIC
-  yaml-cpp
   ${PROXIMA_UI_PLATFORM_LIBS}
 )
 
@@ -118,7 +103,9 @@ if (PROXIMA_USE_SDL)
   )
 
 elseif(WIN32)
-  add_executable(example_app examples/windows/main.cpp)
+  add_executable(example_app WIN32 examples/windows/main.cpp)
+  target_compile_definitions(proxima_ui PRIVATE PEXPORT)
+  target_link_libraries(example_app PRIVATE proxima_ui)
 endif()
 
 if (APPLE)

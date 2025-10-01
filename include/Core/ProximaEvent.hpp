@@ -24,6 +24,7 @@ struct ProximaEvent {
   ProximaEventKeyCode  keyCode    = 0;
   ProximaEventModifiers modifiers = 0;
   std::string          text;        // e.g. UTF‐8 for key
+  std::wstring w_text = L"";
 
   int                  x = 0, y = 0;
   ProximaEventMouseButton button = 0;

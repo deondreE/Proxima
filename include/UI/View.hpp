@@ -1,5 +1,4 @@
 #pragma once
-#include <SDL3/SDL.h>
 #include <algorithm>
 #include <iostream>
 #include <memory>
@@ -9,6 +8,7 @@
 #include <stdexcept>
 
 #include "../Core/ProximaEvent.hpp"
+#include "Renderer.hpp"
 
 namespace UI {
 
@@ -49,7 +49,7 @@ class View {
 
   View& add(std::initializer_list<std::unique_ptr<View>> newChildren) = delete;
 
-  virtual void draw(SDL_Renderer* renderer);
+  virtual void draw(Renderer* renderer);
   virtual void layout(int offsetX, int offsetY);
 
   virtual bool handleProximaEvent(const ProximaEvent& event);
