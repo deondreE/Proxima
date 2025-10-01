@@ -6,11 +6,16 @@ namespace UI {
 	static W_Window* s_currentCreatingWindow = nullptr;
 
 	W_Window::W_Window(const WindowConfig& config, View* rootView)
-		: IWindow(nullptr, WinWindowDeleter(), nullptr,
+		: IWindow(nullptr, WinWindowDeleter(),
 			rootView, config, 0) 
 	{
       _titleBarHeight =
           GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME);
+      
+      if (!rootView) {
+        _rootView = std::make_unique<View>();
+      }
+      _rootView->size(_config.initialWidth, _config.initialHeight);
 	}
 
 	W_Window::~W_Window() {
@@ -28,9 +33,9 @@ namespace UI {
       wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
 
       if (!RegisterClassEx(&wc)) {
-        std::cerr << "ERROR: Failed to register window class! Error "
-                  << GetLastError() << std::endl;
-        return false;
+          std::cerr << "ERROR: Failed to register window class! Error "
+                    << GetLastError() << std::endl;
+          return false;
       }
       return true;
 	}
@@ -40,9 +45,9 @@ namespace UI {
     }
 
     bool W_Window::initializePlatformSubsystems() {
-        if (!registerWindowClass()) {
+         if (!registerWindowClass()) {
             return false;
-        }
+          }
 
         s_currentCreatingWindow = this;
 
@@ -60,22 +65,14 @@ namespace UI {
         s_currentCreatingWindow = nullptr;
 
         if (!hWnd) {
-          unregisterWindowClass();
-          return false;
+            unregisterWindowClass();
+            std::cerr << "ERROR: Failed to create window! Error " << GetLastError() << std::endl;
+            return false;
         }
         _window.reset(hWnd);
 
-        HDC hdc = GetDC(hWnd);
-        HDC compatibleHdc = CreateCompatibleDC(hdc);
-        if (compatibleHdc) {
-          // _renderer.reset();
-        } else {
-          std::cerr << "WARNING: Failed to create compatible HDC; Other "
-                      "words.... Broken Fix it!";
-        }
-
         _eventDispatcher = std::make_unique<Core::WinEventDispatcher>();
-        _renderer = std::make_unique<WIN_Renderer>(hWnd);
+        _renderer = std::make_unique<WIN_Renderer>(_window.get(), _config.initialWidth, _config.initialHeight);
 
         ShowWindow(hWnd, SW_SHOW);
         UpdateWindow(hWnd);
@@ -93,10 +90,21 @@ namespace UI {
         MSG msg = {};
         _running = true;
 
-
         while (_running) {
+          _renderer->present();
           pumpEvents();
+          _renderer->clear(); // Clear the back buffer
+          if (_rootView) {
+              try {
+                  _rootView->layout(0, 0);
+                  _rootView->draw(_renderer.get());
+              } catch(const std::exception& ex) {
+                  std::cerr << "Root view draw exception: " << ex.what() << "\n";
+              }
+          }
+          _renderer->present(); // Blit back buffer to screen
         }
+        
         
 
         std::cout << "DEBUG:= Exited WinAPI message loop." << std::endl;
@@ -135,32 +143,7 @@ namespace UI {
              return 0;
             break;
         case WM_PAINT: {
-          PAINTSTRUCT ps;
-          HDC hdc = BeginPaint(hWnd, &ps);
-
-          RECT clientRect;
-          GetClientRect(hWnd, &clientRect);
-          HBRUSH brush = CreateSolidBrush(RGB(128, 0, 128));
-          FillRect(hdc, &clientRect, brush);
-          DeleteObject(brush);
-
-          if (_rootView && _renderer) {
-            try {
-              _rootView->draw(_renderer.get());
-              _renderer->present();
-            } catch(const std::exception& ex) {
-              std::cerr << "Root view draw exception." << ex.what() <<"\n";
-            }
-          }
-
-          std::string text = "Hello from W_Window!";
-          SetTextColor(hdc, RGB(255, 255, 0));
-          SetBkMode(hdc, TRANSPARENT);
-          DrawText(hdc, text.c_str(), -1, &clientRect,
-                  DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-
-          EndPaint(hWnd, &ps);
-          return 0;
+          ValidateRect(hWnd, nullptr);
           break;
         }
         case WM_LBUTTONDOWN:

@@ -5,6 +5,7 @@
 	#include <iostream>
 	#include <memory>
 	#include "UI/W_Window.hpp"
+	#include "UI/Text.hpp"
 #elif defined(__linux__)
 	#include <SDL3/SDL.h>
 	#include <SDL3_image/SDL_image.h>
@@ -24,7 +25,7 @@
 	#include "UI/Slider.hpp"  
 	#include "UI/View.hpp"
 	#include "UI/TextInput.hpp"
-	#include "UI/Text.hpp"
+
 	#include "UI/StackLayout.hpp"
 	#include "UI/Window.hpp"
 #endif

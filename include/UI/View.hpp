@@ -9,10 +9,11 @@
 
 #include "../Core/ProximaEvent.hpp"
 #include "Renderer.hpp"
+#include "Platform.hpp"
 
 namespace UI {
 
-class View {
+class PEXPORT View {
  private:
   View* parent = nullptr;
 

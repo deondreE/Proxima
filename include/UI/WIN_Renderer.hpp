@@ -2,13 +2,15 @@
 
 #include <Windows.h>
 #include "UI/Renderer.hpp"
+#include "Core/WinTextRenderer.hpp"
 #include <stdexcept>
+#include <memory>
 
 namespace UI {
 
 class WIN_Renderer : public Renderer {
 public:
-    explicit WIN_Renderer(HWND hWnd);
+  explicit WIN_Renderer(HWND hWnd, int initialWidth, int initialHeight);
 	virtual ~WIN_Renderer();
 
 	void setDrawColor(const Color& color) override;
@@ -19,14 +21,28 @@ public:
 	void present() override;
 	void clear() override;
 
+	void resize(int width, int height);
+
+	Core::TextRenderer& getTextRenderer() override {
+		return *_textRenderer.get();
+	}
+
 private:
- HWND m_hWnd;
- HDC m_hDC;
+	HWND m_hWnd;
+  HDC m_hMemoryDC;
+ RECT m_clientBounds;
+HBITMAP m_hBitmap;
+HBITMAP m_hOldBitmap;
+int m_width, m_height;
+
  HPEN m_hPen;
  HBRUSH m_hBrush;
  Color m_currentColor;
+ std::unique_ptr<Core::WinTextRenderer> _textRenderer;
 
- void updateGDIObjects();
+  void updateGDIObjects();
+ 	void createBackBuffer(int width, int height);
+ 	void destroyBackBuffer();
 };
 
 } // Namespace UI

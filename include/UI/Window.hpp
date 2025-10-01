@@ -59,11 +59,10 @@ class IWindow {
   WindowConfig _config;
   int _titleBarHeight;
   
-  IWindow(WindowHandleType* window, WindowDeleterType window_deleter, Renderer* renderer,
+  IWindow(WindowHandleType* window, WindowDeleterType window_deleter,
                   View* root_view_ptr,
                   const WindowConfig& config, int titleBarHeight)
       : _window(window, std::move(window_deleter)),
-        _renderer(renderer),
         _rootView(root_view_ptr),
         _config(config),
         _titleBarHeight(titleBarHeight) {}

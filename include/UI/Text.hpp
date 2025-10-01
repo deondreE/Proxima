@@ -1,37 +1,31 @@
 #pragma once
-#include <SDL3/SDL.h>
-#include <SDL3_ttf/SDL_ttf.h>
 #include <string>
 #include "View.hpp"
-#include "Core/ProximaEvent.hpp"  
+#include "Color.hpp"
+#include "Core/TextRenderer.hpp"
+#include "Core/ProximaEvent.hpp"
+#include "Platform.hpp"  
 
 namespace UI {
 
-class Text : public View {
+class PEXPORT Text : public View {
  private:
   std::string text_content;
-  TTF_Font* font;
+  Color text_color;
+  Core::Font* font;
   std::string font_path;
   int font_size;
-  SDL_Color text_color;
-
-  SDL_Texture* text_texture;
-  bool texture_needs_update;
 
   bool word_wrap;
 
-  void updateTexture(SDL_Renderer* renderer);
-  bool reopenFont();
-
  public:
   Text(const std::string& text = "", const std::string& initial_font_path = "",
-       int initial_font_size = 24, SDL_Color color = {0, 0, 0, 255});
+      int initial_font_size = 24, const Color& color = {0, 0, 0, 255});
 
   ~Text() override;
 
   Text& size(int w, int h) {
     View::size(w, h);
-    texture_needs_update = true;
     return *this;
   }
   Text& pos(int nx, int ny) {
@@ -41,9 +35,9 @@ class Text : public View {
   Text& content(const std::string& str);
   Text& setWordWrap(bool wrap);
   Text& setFont(const std::string& fontPath, int size);
-  Text& setColor(SDL_Color newColor);
+  Text& setColor(const Color& newColor);
 
-  virtual void draw(SDL_Renderer* renderer) override;
+  virtual void draw(Renderer* renderer) override;
   virtual bool handleProximaEvent(const ProximaEvent& event) override;
 
   Text(const Text&) = delete;

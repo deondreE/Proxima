@@ -1,5 +1,10 @@
 #pragma once
-#include <SDL3_ttf/SDL_ttf.h>
+
+#if defined (_WIN32)
+  #include <SDL3_ttf/SDL_ttf.h>
+#elif defined(__linux__)
+#endif
+
 #include <functional>
 #include <string>
 #include "View.hpp"
