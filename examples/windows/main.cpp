@@ -43,14 +43,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   line->setColor({0, 255, 0, 255});
   line->pos(200, 200);
 
-  auto rect = std::make_unique<Rect>();
-  rect->size(100, 200);
-  rect->setColor({200, 200, 200, 255});
+  auto slider = std::make_unique<Slider>(50, 400, 300, 0.0f, 100.0f, 75.0f); 
+  slider->setStep(5.0f);
+  slider->setColors({100, 100, 200, 255}, {255, 150, 0, 255});
+  slider->setDimentions(30, 20, 30);
+  slider->onValueChanged([](float newValue) {
+    std::cout << "Volume changed to: " << newValue << std::endl;
+  });
+  slider->z_index(10);
 
   rootView.add(std::move(helloText));
   rootView.add(std::move(btn));
-  rootView.add(std::move(rect));
   rootView.add(std::move(line));
+  rootView.add(std::move(slider));
 
   window.run();
 

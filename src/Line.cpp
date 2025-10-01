@@ -40,7 +40,9 @@ Line& Line::setThickness(int t) {
     return *this;
 }
 
-void Line::draw(Renderer* renderer) {
+void Line::draw(const ViewContext& context) {
+    UI::Renderer* renderer = context.renderer;
+
     renderer->setDrawColor(color);
 
     float abs_x1 = (float)x + x1_rel;
@@ -62,7 +64,7 @@ void Line::draw(Renderer* renderer) {
     if (thickness <= 1) {
         renderer->drawLine(abs_x1, abs_y1, abs_x2, abs_y2);
     }
-    View::draw(renderer);
+    View::draw(context);
 }
 
 bool Line::handleProximaEvent(const ProximaEvent& event) {

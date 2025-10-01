@@ -14,6 +14,21 @@ Button::Button(const std::string& text, const std::string& initial_font_path,
       is_pressed(false) {
 }
 
+void Button::setContext(const ViewContext& context) {
+  View::setContext(context);
+
+  if (!font && context.renderer) {
+    font = _context.renderer->getTextRenderer()->loadFont(font_path, font_size);
+    if (!font) {
+      std::cerr << "ERROR: Failed to load font '" << font_path << "' for Text object (content: '" << label << "'). Falling back to Arial.\n";
+      font = _context.renderer->getTextRenderer()->loadFont("Arial", font_size);
+      if (!font) {
+            std::cerr << "CRITICAL ERROR: Failed to load fallback 'Arial' font for Text object.\n";
+      }
+    }
+  }
+}
+
 Button::~Button() {
 }
 
@@ -49,9 +64,10 @@ void Button::click() {
   }
 }
 
-void Button::draw(Renderer* renderer) {
-  auto& textRenderer = renderer->getTextRenderer();
-  
+void Button::draw(const ViewContext& context) {
+  Renderer* renderer = context.renderer;
+  auto textRenderer = renderer->getTextRenderer();
+
   // bg
   if (is_pressed) {
     renderer->setDrawColor({255, 255, 255, 255});
@@ -63,15 +79,13 @@ void Button::draw(Renderer* renderer) {
   renderer->setDrawColor({50, 50, 50, 255});
   renderer->drawRect(x, y, width, height);
 
-  auto f = textRenderer.loadFont(font_path, font_size);
-  auto textDim = textRenderer.measureText(label, f);
+  auto textDim = textRenderer->measureText(label, font);
   int textX = x + (width - textDim.first) / 2;
   int textY = y + (height - textDim.second) / 2;
 
-  textRenderer.loadFont(font_path, font_size);
-  textRenderer.drawText(label, f, text_color, textX, textY, width, height, false);
+  textRenderer->drawText(label, font, text_color, textX, textY, width, height, false);
 
-  View::draw(renderer);
+  View::draw(context);
 }
 
 bool Button::handleProximaEvent(const ProximaEvent& event) {

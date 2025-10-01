@@ -19,7 +19,7 @@ namespace UI {
             Line& setColor(const Color& c);
             Line& setThickness(int t);
 
-            void draw(Renderer* renderer) override;
+            void draw(const ViewContext& context) override;
 
             bool handleProximaEvent(const ProximaEvent& event) override;
 

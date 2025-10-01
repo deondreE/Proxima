@@ -57,10 +57,27 @@ View& View::pos(int nx, int ny) {
   return *this;
 }
 
-void View::draw(Renderer* renderer) {
+void View::update(float deltaTime, const ViewContext& context) {
+  for (auto& child_ptr : children) {
+    if (child_ptr) {
+      child_ptr->update(deltaTime, context);
+    }
+  }
+}
+
+void View::setContext(const ViewContext& context) {
+  _context = context;
+  for (auto& child_ptr : children) {
+    if (child_ptr) {
+      child_ptr->setContext(context);
+    }
+  }
+}
+
+void View::draw(const ViewContext& context) {
   for (const auto& child_ptr : children) {
     if (child_ptr) {
-      child_ptr->draw(renderer);
+      child_ptr->draw(context);
     }
   }
 }

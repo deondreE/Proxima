@@ -15,7 +15,7 @@ class Renderer {
   virtual void drawRect(int x, int y, int w, int h) = 0;
   virtual void fillRect(int x, int y, int w, int h) = 0;
   virtual void drawLine(int x1, int y1, int x2, int y2) = 0;
-  virtual Core::TextRenderer& getTextRenderer() = 0;
+  virtual Core::TextRenderer* getTextRenderer() const = 0;
 
   virtual void present() = 0;
   virtual void clear() = 0;

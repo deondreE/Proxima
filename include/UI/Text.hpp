@@ -37,8 +37,9 @@ class PEXPORT Text : public View {
   Text& setFont(const std::string& fontPath, int size);
   Text& setColor(const Color& newColor);
 
-  virtual void draw(Renderer* renderer) override;
-  virtual bool handleProximaEvent(const ProximaEvent& event) override;
+  void draw(const ViewContext& context) override;
+  void setContext(const ViewContext& context) override;
+  bool handleProximaEvent(const ProximaEvent& event) override;
 
   Text(const Text&) = delete;
   Text& operator=(const Text&) = delete;

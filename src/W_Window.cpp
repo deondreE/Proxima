@@ -74,6 +74,12 @@ namespace UI {
         _eventDispatcher = std::make_unique<Core::WinEventDispatcher>();
         _renderer = std::make_unique<WIN_Renderer>(_window.get(), _config.initialWidth, _config.initialHeight);
 
+        if (_rootView) {
+          ViewContext initialContext;
+          initialContext.renderer = _renderer.get();
+          _rootView->setContext(initialContext);
+        }
+
         setupEventHandlers();
 
         ShowWindow(hWnd, SW_SHOW);
@@ -112,25 +118,39 @@ namespace UI {
         MSG msg = {};
         _running = true;
 
+        float deltaTime = 0.016f;
+
         while (_running) {
-          _eventDispatcher->pollAndTranslate(); 
+
+          ViewContext frameContext;
+          frameContext.renderer = _renderer.get();
+
+          _eventDispatcher->pollAndTranslate();
+          if (!_running) break; 
           _eventDispatcher->dispatch(); 
 
-          _renderer->clear();
+          // Update
           if (_rootView) {
-              try {
-                  _rootView->layout(0, 0);
-                  _rootView->draw(_renderer.get());
-              } catch(const std::exception& ex) {
-                  std::cerr << "Root view draw exception: " << ex.what() << "\n";
-              }
+            _rootView->update(deltaTime, frameContext);
+          }
+
+          // Layout
+          if (_rootView) {
+            _rootView->layout(0, 0);
+          }
+
+          // Clear & draw
+          if (_rootView) {
+            try {
+              _rootView->draw(frameContext);
+            } catch(std::exception& ex) {
+              std::cerr << "Root view draw exception: " << ex.what() << std::endl;
+            }
           }
 
           _renderer->present();
         }
         
-        
-
         std::cout << "DEBUG:= Exited WinAPI message loop." << std::endl;
     }
 

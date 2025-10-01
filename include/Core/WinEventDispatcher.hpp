@@ -54,11 +54,20 @@ namespace Core {
               break;
             case WM_LBUTTONDOWN:
               e.type = MOUSE_PRESS;
+              e.x = GET_X_LPARAM(msg.lParam); 
+              e.y = GET_Y_LPARAM(msg.lParam);
               e.button = 1;
               break;
             case WM_LBUTTONUP:
               e.type = MOUSE_RELEASE;
+              e.x = GET_X_LPARAM(msg.lParam); 
+              e.y = GET_Y_LPARAM(msg.lParam);
               e.button = 1;
+              break;
+            case WM_MOUSEMOVE:
+              e.type = MOUSE_MOTION;
+              e.x = GET_X_LPARAM(msg.lParam); 
+              e.y = GET_Y_LPARAM(msg.lParam);
               break;
             case WM_SIZE:
               e.type = WINDOW_RESIZE;

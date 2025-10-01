@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 #include <iomanip>
 
 namespace UI {
@@ -10,11 +11,6 @@ Slider::Slider(int x, int y, int w, float min, float max, float initial)
     : minValue(min), maxValue(max) {
   View::pos(x, y);
   View::size(w, thumbHeight);
-
-  valueTextLabel = std::make_unique<Text>("");
-  valueTextLabel->setColor({0, 0, 0, 255});
-  valueTextLabel->z_index(zIndex + 1);
-  add(std::move(valueTextLabel)); 
 
   setValue(initial);
 }
@@ -26,10 +22,18 @@ float Slider::getThumbX(int absoluteSliderX) const {
 }
 
 float Slider::getValueFromMouseX(int mouseX, int abosoluteSliderX,
-                                 int sliderWidth) const {
-  float trackLength = (float)sliderWidth - thumbWidth;
+                                int sliderWidth) const {
+  int trackLength = sliderWidth - thumbWidth;
+  if (trackLength <= std::numeric_limits<float>::epsilon()) {
+    if (mouseX < abosoluteSliderX + (float)sliderWidth / 2.0f) {
+      return minValue;
+    } else {
+      return maxValue;
+    }
+  }
+  
   float clickXInTrack =
-      (float)mouseX - abosoluteSliderX - (float)thumbWidth / 2.0f;
+      mouseX - abosoluteSliderX - thumbWidth / 2.0f;
   float normalizedClick = std::clamp(clickXInTrack / trackLength, 0.0f, 1.0f);
 
   float newValue = minValue + normalizedClick * (maxValue - minValue);
@@ -59,17 +63,6 @@ Slider& Slider::setValue(float value) {
   if (currentValue != clampedValue) {
     currentValue = clampedValue;
 
-    if (valueTextLabel) {
-        for (const auto& child_ptr : children) {
-            if (Text* text_ptr = dynamic_cast<Text*>(child_ptr.get())) {
-                std::stringstream ss;
-                ss << std::fixed << std::setprecision(1) << currentValue;
-                text_ptr->content(ss.str());
-                break;
-            }
-        }
-    }
-
     if (onValueChangedCallback) {
       onValueChangedCallback(currentValue);
     }
@@ -84,7 +77,7 @@ Slider& Slider::setStep(float step) {
   return *this;
 }
 
-Slider& Slider::setColors(SDL_Color track, SDL_Color thumb) {
+Slider& Slider::setColors(const Color& track, const Color& thumb) {
   trackColor = track;
   thumbColor = thumb;
   return *this;
@@ -95,6 +88,12 @@ Slider& Slider::setDimentions(int trackH, int thumbW, int thumbH) {
   thumbWidth = std::max(1, thumbW);
   thumbHeight = std::max(1, thumbH);
   View::size(width, thumbHeight);
+
+  if (this->width <= this->thumbWidth) {
+    std::cerr << this->width - 1;
+    this->thumbWidth = this->width - 1;
+  }
+
   return *this;
 }
 
@@ -104,52 +103,34 @@ Slider& Slider::onValueChanged(OnValueChangedHandler handler) {
 }
 
 void Slider::layout(int offsetX, int offsetY) {
-    if (valueTextLabel) {
-        for (const auto& child_ptr : children) {
-            if (Text* text_ptr = dynamic_cast<Text*>(child_ptr.get())) {
-                text_ptr->pos(getThumbX(offsetX) - text_ptr->width/2 - (offsetX - x), // Relative to Slider's top-left
-                              - text_ptr->height - 5);
-                text_ptr->layout(offsetX - x, offsetY - y);
-                break;
-            }
-        }
-    }
-
     View::layout(offsetX, offsetY);
 }
 
-void Slider::draw(SDL_Renderer* renderer) {
-  SDL_Color originalColor;
-  SDL_GetRenderDrawColor(renderer, &originalColor.r, &originalColor.g,
-                         &originalColor.b, &originalColor.a);
+void Slider::draw(const ViewContext& context) {
+  UI::Renderer* renderer = context.renderer;
+  
+  renderer->setDrawColor(trackColor);
+  renderer->drawRect(x, y + (height-trackHeight) / 2.0f, width, trackHeight);
 
-  SDL_SetRenderDrawColor(renderer, trackColor.r, trackColor.g, trackColor.b,
-                         trackColor.a);
-  SDL_FRect trackRect = {(float)x, (float)y + (height - trackHeight) / 2.0f,
-                         (float)width, (float)trackHeight};
-  SDL_RenderFillRect(renderer, &trackRect);
-
-  SDL_SetRenderDrawColor(renderer, thumbColor.r, thumbColor.g, thumbColor.b,
-                         thumbColor.a);
+  renderer->setDrawColor(thumbColor);
   float thumbDrawX = getThumbX(x);
 
-  SDL_FRect thumbRect = {thumbDrawX, (float)y + (height - thumbHeight) / 2.0f,
-                         (float)thumbWidth, (float)thumbHeight};
-  SDL_RenderFillRect(renderer, &thumbRect);
+  renderer->fillRect(thumbDrawX, y + (height -  thumbHeight) / 2.0f, thumbWidth, thumbHeight);
 
-  SDL_SetRenderDrawColor(renderer, originalColor.r, originalColor.g,
-                         originalColor.b, originalColor.a);
-  View::draw(renderer);
+  View::draw(context);
 }
 
 bool Slider::handleProximaEvent(const ProximaEvent& event) {
-  int absX = x;
-  int absY = y;
+  int absX = getAbsoluteX();
+  int absY = getAbsoluteY();
+
+  std::cout << isDragging << std::endl;
 
   switch (event.type) {
     case MOUSE_PRESS:
       if (event.x >= absX && event.x < (absX + width) && event.y >= absY &&
           event.y < (absY + height)) {
+        assert(!isDragging);
         isDragging = true;
         float newValue = getValueFromMouseX(event.x, absX, width);
         setValue(newValue);
@@ -165,6 +146,7 @@ bool Slider::handleProximaEvent(const ProximaEvent& event) {
     case MOUSE_MOTION:
       if (isDragging) {
         float newValue = getValueFromMouseX(event.x, absX, width);
+        std::cout << getValueFromMouseX(event.x, absX, width);
         setValue(newValue);
         return true;
       }

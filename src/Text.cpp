@@ -1,5 +1,6 @@
 #include "UI/Text.hpp"
 #include <iostream>
+#include <cassert>
 
 namespace UI {
 
@@ -15,6 +16,22 @@ Text::Text(const std::string& text, const std::string& initial_font_path,
 
 Text::~Text() {
 }
+
+void Text::setContext(const ViewContext& context) {
+  View::setContext(context);
+
+  if (!font && context.renderer) {
+    font = _context.renderer->getTextRenderer()->loadFont(font_path, font_size);
+    if (!font) {
+      std::cerr << "ERROR: Failed to load font '" << font_path << "' for Text object (content: '" << text_content << "'). Falling back to Arial.\n";
+      font = _context.renderer->getTextRenderer()->loadFont("Arial", font_size);
+      if (!font) {
+            std::cerr << "CRITICAL ERROR: Failed to load fallback 'Arial' font for Text object.\n";
+      }
+    }
+  }
+}
+
 Text& Text::content(const std::string& str) {
   if (text_content != str) {
     text_content = str;
@@ -45,12 +62,22 @@ Text& Text::setWordWrap(bool wrap) {
   return *this;
 }
 
-void Text::draw(Renderer* renderer) {
-  auto& textRenderer = renderer->getTextRenderer();
-  // Load font, check for updates.
-  font = textRenderer.loadFont(font_path, font_size);
-  auto size = textRenderer.measureText(text_content, font);
-  textRenderer.drawText(text_content, font, text_color, 100, 100, size.first, size.second, false);
+void Text::draw(const ViewContext& context) {
+  UI::Renderer* renderer = context.renderer;
+  assert(renderer && "Renderer must be valid in ViewContext for drawing!");
+  assert(_context.renderer == renderer && "Context mismatch in Text::draw!");
+
+  auto textRenderer = renderer->getTextRenderer();
+  if (!font) {
+    std::cerr << "WARNING: Font not available for Text object '" << text_content << "', skipping draw." << std::endl;
+    View::draw(context);
+    return;
+  }
+
+    auto textDim = textRenderer->measureText(text_content, font);
+    textRenderer->drawText(text_content, font, text_color, textDim.first, textDim.second, width*2, height, false);
+
+    View::draw(context);
 }
 
 bool Text::handleProximaEvent(const ProximaEvent& event) {

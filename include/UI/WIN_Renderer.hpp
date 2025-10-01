@@ -23,8 +23,8 @@ public:
 
 	void resize(int width, int height);
 
-	Core::TextRenderer& getTextRenderer() override {
-		return *_textRenderer.get();
+	Core::TextRenderer* getTextRenderer() const override {
+		return _textRenderer.get();
 	}
 
 private:

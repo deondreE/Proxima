@@ -25,7 +25,7 @@ class PEXPORT Rect : public View {
 
   Rect& setColor(const Color& clr);
 
-  void draw(Renderer* renderer) override;
+  void draw(const ViewContext& context) override;
 };
 
 }  // Namespace UI

@@ -13,11 +13,13 @@ Rect& Rect::setColor(const Color& clr) {
     return *this;
 }
 
-void Rect::draw(Renderer* renderer) {
+void Rect::draw(const ViewContext& context) {
+    UI::Renderer* renderer = context.renderer;
+
     renderer->setDrawColor(color);
     renderer->drawRect(x, y, width, height);
     renderer->fillRect(x,y,width,height);
 
-    View::draw(renderer);
+    View::draw(context);
 }
 } // Namespace UI

@@ -10,6 +10,7 @@
 #include "../Core/ProximaEvent.hpp"
 #include "Renderer.hpp"
 #include "Platform.hpp"
+#include "ViewContext.hpp"
 
 namespace UI {
 
@@ -18,6 +19,8 @@ class PEXPORT View {
   View* parent = nullptr;
 
   void insertChildSorted(std::unique_ptr<View> child);
+protected:
+  ViewContext _context; 
 
  public:
   int x{0}, y{0};
@@ -38,20 +41,26 @@ class PEXPORT View {
       child_ptr->parent = nullptr;
       T& ref = *child_ptr;
       child_ptr->setParent(this);
+      if (_context.renderer) {
+        child_ptr->setContext(_context);
+      }
       insertChildSorted(std::move(child_ptr)); 
       return ref;
     }
-
     throw std::runtime_error("Attemted to add a null unique child to view.");
   }
+
+  virtual void setContext(const ViewContext& context);
+  const ViewContext& getContext() const { return _context; }
 
   void setParent(View* p);
   View* getParent() const { return parent; }
 
   View& add(std::initializer_list<std::unique_ptr<View>> newChildren) = delete;
 
-  virtual void draw(Renderer* renderer);
+  virtual void draw(const ViewContext& context);
   virtual void layout(int offsetX, int offsetY);
+  virtual void update(float deltaTime, const ViewContext& context);
 
   virtual bool handleProximaEvent(const ProximaEvent& event);
 

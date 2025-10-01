@@ -43,9 +43,10 @@ class PEXPORT Button : public View {
   Button& onClick(std::function<void(Button&)> cb);
   Button& setFont(const std::string& fontPath, int size);
   Button& setTextColor(const Color& newColor);
+  void setContext(const ViewContext& context) override;
 
   void click();
-  void draw(Renderer* renderer) override;
+  void draw(const ViewContext& context) override;
   bool handleProximaEvent(const ProximaEvent& event) override;
 
   Button(const Button&) = delete;
