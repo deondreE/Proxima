@@ -24,6 +24,14 @@ class PEXPORT TextInput : public View {
   Color cursorColor = {0, 0, 0, 255};
   Color backgroundColor = {255, 255, 255, 255};
 
+  size_t getByteIndexForCharIndex(const std::string& str, int char_index); 
+  int getCharCount(const std::string& str);
+  void printHexString(
+    const std::string& str,
+    int bytesPerLine = 16,
+    bool showAscii = true
+);
+
  public:
   TextInput();
   ~TextInput() override;

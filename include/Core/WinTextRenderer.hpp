@@ -41,6 +41,7 @@ namespace Core {
       }
 
       void drawText(const std::string& text, Font* font, const Color& color, int x, int y, int maxWidth, int maxHeight, bool wordWrap) override {
+        std::cout << text << std::endl;
         auto winFont = dynamic_cast<WinFont*>(font);
         if (!winFont) return; 
         HFONT oldFont = (HFONT)SelectObject(hdc, winFont->hFont);
@@ -49,15 +50,18 @@ namespace Core {
 
         RECT textRect = {x, y, x + maxWidth, y+maxHeight};
 
+        DRAWTEXTPARAMS dtParams = {0};
+        dtParams.cbSize = sizeof(DRAWTEXTPARAMS);
+
         UINT format = DT_LEFT; // left aligned
         if (wordWrap) {
           format |= DT_WORDBREAK;
         }
-        if (maxHeight == 0) {
-          format |= DT_NOCLIP;
-        } 
 
-        DrawTextA(hdc, text.c_str(), (int)text.size(), &textRect, format);
+        if (!text.empty()) {
+          DrawTextExA(hdc, const_cast<LPSTR>(text.c_str()), (int)text.size(), &textRect, format, &dtParams);
+        }
+       
         SelectObject(hdc, oldFont);
       }
 
