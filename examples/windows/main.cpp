@@ -1,13 +1,22 @@
 #include <iostream>
 #include "Proxima.hpp"
+#include <filesystem>
 using namespace UI;
+
+Core::ConfigManager configManager;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     LPSTR lpCmdLine, int nCmdShow) {
+  if (!configManager.load("../../examples/windows/config/app_config.yaml")) {
+    std::cerr << "Failed to load config\n";
+    return 1;
+  }
+  const Core::AppConfig& appConfig = configManager.getAppConfig();
+
   WindowConfig cfg; 
-  cfg.title = "Proxima Test Center";
-  cfg.initialWidth = 800;
-  cfg.initialHeight = 600;
+  cfg.title = appConfig.window_title;
+  cfg.initialWidth = appConfig.initial_width;
+  cfg.initialHeight = appConfig.initial_height;
   cfg.style = WS_OVERLAPPEDWINDOW;
   cfg.exStyle = 0;
 

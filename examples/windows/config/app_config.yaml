@@ -1,12 +1,10 @@
-# Application settings
 application:
   window_title: 'Proxima MVP'
-  initial_width: 640
-  initial_height: 480
+  initial_width: 1280
+  initial_height: 920
   initial_font_path: './fonts/Delius-Regular.ttf'
   icon: ''
 colorscheme:
   core_bg: [100, 100, 100, 255]
 fonts:
-  header: './'
-  text_p: './'
+  header: './fonts/Delius-Regular.ttf'

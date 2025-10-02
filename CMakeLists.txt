@@ -60,7 +60,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
   #src/Core/Debug.cpp
   #src/Core/DebugManager.cpp
 
+include (FetchContent)
+
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG yaml-cpp-0.7.0
+)
+FetchContent_MakeAvailable(yaml-cpp)
+
 if (WIN32)
+
 add_library(proxima_ui SHARED
   src/View.cpp
   src/Core/WIN_Renderer.cpp
@@ -75,6 +85,7 @@ add_library(proxima_ui SHARED
   src/GridLayout.cpp
   src/StackLayout.cpp
   src/TextInput.cpp
+  src/ConfigManager.cpp
 )
 elseif(UNIX)
 add_subdirectory(external/yaml-cpp)
@@ -99,6 +110,7 @@ target_include_directories(proxima_ui PUBLIC
 
 target_link_libraries(proxima_ui PUBLIC
   ${PROXIMA_UI_PLATFORM_LIBS}
+  yaml-cpp::yaml-cpp
 )
 
 if (PROXIMA_USE_SDL)

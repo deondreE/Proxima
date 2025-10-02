@@ -13,6 +13,7 @@
 	#include "UI/Image.hpp"	
 	#include "UI/TextInput.hpp"
 	#include "UI/StackLayout.hpp"
+	#include "Core/ConfigManager.hpp"
 #elif defined(__linux__)
 	#include <SDL3/SDL.h>
 	#include <SDL3_image/SDL_image.h>
