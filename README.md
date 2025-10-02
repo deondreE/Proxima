@@ -1,61 +1,6 @@
-Proxima - Native Cross-Platform App Platform (MVP)
+# Proxima - Native Cross-Platform App Platform (MVP)
 
-
-Proxima is a groundbreaking experiment in native cross-platform application development. Our core philosophy is to build a framework from the ground up, entirely in C++, by directly interfacing with low-level system graphics and input APIs. 
-
-Our goal is to redefine how native applications are built, offering unparalleled control, maximum performance, and a truly bespoke native experience across multiple operating systems, leveraging the raw power of each platform's hardware.
-
-## Mission
-
-C++ powers most of the world wether we like it or not. We MUST make the expirence of Application development in the language better and more intuitive.
-
----
-
-## Building
-
-> **All platforms** 
-
-```bash
-git clone <repo_link> --recursive
-```
-
-> **Macos**
-
-> Note: there is no code resulting for the Macos Platform this will just not compile.
-
-```bash
-# REQUIRES METAL
-xcode --select install # something like that
-
-cmake -S . -B build #only first run
-cmake --build build
-```
-
-> **Windows**
-
-> Note: there is no code resulting for the Windows Platform this will just not compile.
-
-
-```powershell
-# REQUIRED -> DX11 and MSVC 19.40 at least
-cmake -S . -B build
-cmake --build build
-```
-
-> **Arch Linux**
-
-1. Install Dependencies
-```bash
-sudo pacman -Syu
-sudo pacman -S --needed base-devel git cmake clang sdl3 sdl3_ttf
-```
-
-2. Build the project
-```bash
-cmake -S . -B build # for first build only
-cmake --build build
-./build/example_app
-```
+Proxima is a simple UI library aiming to make the application layer a less dependent process.
 
 ---
 
@@ -65,10 +10,26 @@ Proxima will have language bindings for all popular languages
 
 - Rust
 - Python
+- Zig
+- Odin
 - Lua
-- Java
 
-This will allow for the platform to reach as many runtimes as possible and there to be no excuse such as "I don't know C++" to ever exist. 
+This will allow for the platform to reach as many runtimes as possible and there to be no excuse such as "I don't know C++" to ever exist.
+
+The Proxima way of rendering is super interesting:
+
+We render everything for you at once in DEBUG only, then once you push you application to production the entire UI is chached in a .yaml format allowing for simple:
+
+- Modding
+- Editing
+
+And this also allows for super fast runtime performance when outside of a debug environment..
+
+This will eventually support every platform at the application layer... We are looking at support "Game Style" User interfaces in the future. This include but are not limited to:
+
+- Viewports. **Both multiple, and single**
+- Docking
+- Quad rendering for inside games.
 
 ## Usage
 
@@ -151,47 +112,34 @@ int main(int argc, char* argv[]) {
 
 This initial version focuses on demonstrating fundamental, custom-built capabilities:
 
-
 - Core Applicaiton logic for defining DSL.
 
 - Direct System Graphics API Interaction:
-	- Proxima directly utilizes the native, low-level graphics APIs on each platform:
-		- iOS/macOS: Metal
 
-		- Windows: DirectX
-		- Android: Vulkan
+  - Proxima directly utilizes the native, low-level graphics APIs on each platform:
 
-		- Linux: SDL3
-
+    - Windows: WIN32
+    - Linux: SDL3
 
 - Custom UI Rendering Engine: Proxima implements its own rendering engine for all UI elements. This includes:
-	- Vector/Shape Primitives: Drawing lines, rectangles, circles.
-	- Text Inputs
-	- Layouts
-	- Text Rendering
 
-- Procedural/Struct-Based UI Definition
-
-- Direct Input Handling: Raw keyboard, mouse, and touch events are captured directly from the OS-level event loops and processed by Proxima's custom event system, primarily using callbacks and event structs.
+  - Vector/Shape Primitives: Drawing lines, rectangles, circles.
+  - Text Inputs
+  - Layouts
+  - Text Rendering
 
 - Minimal Platform Abstraction Layer: Custom, thin C wrappers for:
-	- Creating and managing OS-level windows/views/surfaces.
 
-	- Setting up graphics contexts/devices (e.g., Metal MTLCommandQueue, DXGI Swap Chain).
+  - Creating and managing OS-level windows/views/surfaces.
 
-	- Receiving raw input events (keyboard, mouse, touch) directly.
+  - Setting up graphics contexts/devices (e.g., Metal MTLCommandQueue, DXGI Swap Chain).
 
-	- Accessing essential system APIs (e.g., getting screen resolution, basic timing, memory allocation hooks if needed).
+  - Receiving raw input events (keyboard, mouse, touch) directly.
 
+  - Accessing essential system APIs (e.g., getting screen resolution, basic timing, memory allocation hooks if needed).
 
 - Native Build Integration:
-	- iOS: Integrates with Xcode projects (potentially using Objective-C for bridging), compiling to a native iOS app.
-
-	- Android: Integrates with Gradle/CMake, compiling to a native Android app via NDK (using JNI for Java bridging).
-
-	- macOS: Standard CMake/Xcode project (potentially using Objective-C for bridging), compiling to a native macOS app bundle.
-
-	- Windows: Standard CMake/Visual Studio project, compiling to a native Windows executable (using Win32 API directly).
+  - Windows: Standard CMake/Visual Studio project, compiling to a native Windows executable (using Win32 API directly).
 
 ## Non-Goals for MVP
 
@@ -214,6 +162,7 @@ To maintain a focused scope for this initial, ambitious effort:
 ## Contributing
 
 Check out the issues, comment, let us know your progress. Tag this `[AI]` with a comment if generated by AI please.
+[Contributing Layout](./docs/Contributing.md)
 
 ## License
 
